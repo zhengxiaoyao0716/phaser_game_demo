@@ -6,7 +6,24 @@ declare module "carlo" {
     /**
      * Launches the browser.
      */
-    function launch(options?: Object): Promise<App>;
+    function launch(options?: {
+        width: number, // App window width in pixels.
+        height: number, // App window height in pixels.
+        top: number, // App window top offset in pixels.
+        left: number, // App window left offset in pixels.
+        bgcolor: string, // Background color using hex notation, defaults to '#ffffff'.
+        channel: ('stable' | 'canary' | 'chromium' | string)[], // Browser to be used, defaults to ['stable']:
+        // 'stable' only uses locally installed stable channel Chrome.
+        // 'canary' only uses Chrome SxS aka Canary.
+        // 'chromium' downloads local version of Chromium compatible with the Puppeteer used.
+        // 'rXXXXXX' a specific Chromium revision is used.
+        icon: Buffer | string, // Application icon to be used in the system dock. Either buffer containing PNG or a path to the PNG file on the file system. This feature is only available in Chrome M72+. One can use 'canary' channel to see it in action before M72 hits stable.
+        paramsForReuse: any, // Optional parameters to share between Carlo instances. See Window.paramsForReuse for details.
+        title: string, // Application title.
+        userDataDir: string, // Path to a User Data Directory. This folder is created upon the first app launch and contains user settings and Web storage data. Defaults to '.profile'.
+        executablePath: string, // Path to a Chromium or Chrome executable to run instead of the automatically located Chrome. If executablePath is a relative path, then it is resolved relative to current working directory. Carlo is only guaranteed to work with the latest Chrome stable version.
+        args: Array<string>, // Additional arguments to pass to the browser instance. The list of Chromium flags can be found here.
+    }): Promise<App>;
     export class App {
         /**
          * Emitted when the last window closes..

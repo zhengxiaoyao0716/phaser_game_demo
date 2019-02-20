@@ -4,7 +4,9 @@
     "tslint-react",
     "tslint-config-prettier"
   ],
-  "rulesDirectory": ["node_modules/tslint-microsoft-contrib"],
+  "rulesDirectory": [
+    "node_modules/tslint-microsoft-contrib"
+  ],
   "rules": {
     "object-literal-sort-keys": false,
     "trailing-comma": [
@@ -18,7 +20,27 @@
       "severity": "warn"
     },
     "member-ordering": false,
-    "quotemark": [true, "single", "jsx-double", "avoid-escape", "avoid-template"]
+    "quotemark": [
+      true,
+      "single",
+      "jsx-double",
+      "avoid-escape",
+      "avoid-template"
+    ],
+    "no-console": {
+      "severity": "warn"
+    },
+    "no-unused-expression": {
+      "options": [
+        "allow-fast-null-checks"
+      ],
+      "severity": "error"
+    },
+    "semicolon": true,
+    "variable-name":  [true, "ban-keywords", "check-format", "allow-leading-underscore"],
+    "no-shadowed-variable": false,
+    "curly": [true, "ignore-same-line"],
+    "no-bitwise": false
   },
   "linterOptions": {
     "exclude": [

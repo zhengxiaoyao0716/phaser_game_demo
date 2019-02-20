@@ -647,6 +647,12 @@ declare type PluginObject = {
     defaultMerge?: string[];
 };
 
+declare type SenceConfig = {
+    preload?: (this: Phaser.Scene) => void,
+    create?: (this: Phaser.Scene) => void,
+    update?: (this: Phaser.Scene, time: number, delta: number) => void,
+};
+
 declare type GameConfig = {
     /**
      * The width of the game, in game pixels.
@@ -688,13 +694,7 @@ declare type GameConfig = {
      * A scene or scenes to add to the game. If several are given, the first is started; the remainder are started only if they have { active: true }.
      * // TODO fixType.
      */
-    scene?: {
-        preload: (this: Phaser.Scene) => void,
-        create: (this: Phaser.Scene) => void,
-    } | {
-        preload: (this: Phaser.Scene) => void,
-        create: (this: Phaser.Scene) => void,
-    }[];
+    scene?: SenceConfig | SenceConfig[];
     /**
      * Seed for the random number generator.
      */
@@ -16163,7 +16163,7 @@ declare namespace Phaser {
              * @param config The configuration object this Game Object will use to create itself.
              * @param addToScene Add this Game Object to the Scene after creating it? If set this argument overrides the `add` property in the config object.
              */
-            graphics(config: object, addToScene?: boolean): Phaser.GameObjects.Graphics;
+            graphics(config?: GraphicsOptions, addToScene?: boolean): Phaser.GameObjects.Graphics; // TODO fixType.
 
             /**
              * Creates a new Group Game Object and returns it.
@@ -16234,7 +16234,7 @@ declare namespace Phaser {
              * @param config The configuration object this Game Object will use to create itself.
              * @param addToScene Add this Game Object to the Scene after creating it? If set this argument overrides the `add` property in the config object.
              */
-            text(config: object, addToScene?: boolean): Phaser.GameObjects.Text;
+            text(config?: object, addToScene?: boolean): Phaser.GameObjects.Text; // TODO fixType.
 
             /**
              * Creates a new TileSprite Game Object and returns it.
@@ -33122,7 +33122,7 @@ declare namespace Phaser {
              * @param text The text this Text object will display.
              * @param style The text style configuration object.
              */
-            constructor(scene: Phaser.Scene, x: number, y: number, text: string | string[], style: object);
+            constructor(scene: Phaser.Scene, x: number, y: number, text: string | string[], style?: object);
 
             /**
              * Returns an object containing dimensions of the Text object.
@@ -33341,9 +33341,9 @@ declare namespace Phaser {
 
             /**
              * Set the text fill color.
-             * @param color The text fill color.
+             * @param color The text fill color. // TODO fixType
              */
-            setColor(color: string): Phaser.GameObjects.Text;
+            setColor(color: string | number): Phaser.GameObjects.Text;
 
             /**
              * Set the stroke settings.
