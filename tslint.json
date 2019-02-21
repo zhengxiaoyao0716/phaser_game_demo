@@ -13,12 +13,14 @@
       true,
       {
         "multiline": "always",
-        "singleline": "never"
+        "singleline": "never",
+        "esSpecCompliant": true
       }
     ],
     "no-suspicious-comment": {
       "severity": "warn"
     },
+    "ordered-imports": false,
     "member-ordering": false,
     "quotemark": [
       true,
@@ -40,7 +42,9 @@
     "variable-name":  [true, "ban-keywords", "check-format", "allow-leading-underscore"],
     "no-shadowed-variable": false,
     "curly": [true, "ignore-same-line"],
-    "no-bitwise": false
+    "no-bitwise": false,
+    "eofline": true,
+    "max-classes-per-file": false
   },
   "linterOptions": {
     "exclude": [

@@ -72,8 +72,9 @@ export const texture = (scene: Phaser.Scene) => ({
 
         const sheet = new Image();
         sheet.src = canvas.toDataURL('image/png');
+        // document.body.append(sheet);
 
-        return await new Promise((resolve) => {
+        return await new Promise<HTMLImageElement>((resolve) => {
             const addSpriteSheet = () => {
                 scene.textures.addSpriteSheet(key, sheet, { frameWidth, frameHeight });
                 resolve(sheet);
