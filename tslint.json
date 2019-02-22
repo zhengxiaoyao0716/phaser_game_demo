@@ -44,7 +44,9 @@
     "curly": [true, "ignore-same-line"],
     "no-bitwise": false,
     "eofline": true,
-    "max-classes-per-file": false
+    "max-classes-per-file": false,
+    "interface-name": false,
+    "prefer-template": true
   },
   "linterOptions": {
     "exclude": [

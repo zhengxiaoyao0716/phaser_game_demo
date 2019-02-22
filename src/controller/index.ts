@@ -1,13 +1,6 @@
-const defaultConfig = {
-    domElement: document.body,
-    enabled: true, moveSpeed: 5.0, jumpSpeed: 5.0, lookSpeed: 1.0, pitchSpeed: 0.5,
-};
-type DefaultConfig = typeof defaultConfig;
+//#region 按键映射
 
-//#region gamepad
-
-const gamepadMapper = {
-    LA: [0, 0], RA: [0, 0],
+const gamepadKeyMapper = {
     LB: false, RB: false, // 肩键
     LT: false, RT: false, // 肩背键
     L: false, R: false, // 摇杆按下
@@ -15,77 +8,31 @@ const gamepadMapper = {
     A: false, B: false, X: false, Y: false, // 右四键
     select: false, start: false, // 中间两键
 };
-type GamepadMapper = typeof gamepadMapper;
-// 手柄标识
-const gamepad = {
-    mapper: gamepadMapper as any,
-    get leftAxes() {
-        const gamepad = this._gamepad;
-        return gamepad ? gamepad.axes.slice(0, 2) : [0, 0];
-    },
-    get rightAxes() {
-        const gamepad = this._gamepad;
-        return gamepad ? gamepad.axes.slice(2, 4) : [0, 0];
-    },
-    of(key: keyof GamepadMapper) {
-        const code = this.mapper[key].code;
-        if (this.hasOwnProperty(code)) {
-            return this[code];
-        }
-        const gamepad = this._gamepad;
-        return gamepad && gamepad.buttons[code].pressed;
-    },
-
-    get _gamepad() { return navigator.getGamepads()[0]; },
+const gamepadAxesMapper = {
+    LA: [0, 0], RA: [0, 0],
 };
-//#endregion
-
-//#region keymouse
+const gamepadMapper = {
+    ...gamepadAxesMapper,
+    ...gamepadKeyMapper,
+};
+type GamepadMapper = typeof gamepadMapper;
 
 const keymouseMapper = {
     mainUp: false, mainDown: false, mainLeft: false, mainRight: false,
     ...gamepadMapper,
 };
 type KeymouseMapper = typeof keymouseMapper;
-// 键鼠标识
-const keymouse = {
-    mapper: keymouseMapper as any,
-    get mainAxes() {
-        const x = (this.of('mainLeft') ? -1 : 0) + (this.of('mainRight') ? 1 : 0);
-        const y = (this.of('mainUp') ? -1 : 0) + (this.of('mainDown') ? 1 : 0);
-        const d = Math.sqrt(x ** 2 + y ** 2);
-        return d === 0 ? null : [x / d, y / d];
-    },
-    _mouseAxes: [0, 0],
-    get mouseAxes() { return this._mouseAxes; }, set mouseAxes([x, y]: number[]) {
-        if (x === 0 && y === 0) {
-            this._mouseAxes = [0, 0];
-            return;
-        }
-        this._mouseAxes = [x / 100, y / 100];
-    },
-    of(key: keyof KeymouseMapper | 'clickLeft' | 'clickRight') {
-        const code = this.mapper[key].code;
-        return this[code] || this.buttons[code];
-    },
-
-    buttons: { clickLeft: false, clickRight: false/*, keyCode: pressed */ },
-    pointerLocked: false,
-};
 //#endregion
 
-//#region key status
+//#region 绑定键位
 
-// 绑定键位
 const bindKeys = (self: { mapper: any }) =>
     (...binds: Array<[
         keyof (GamepadMapper | KeymouseMapper) | 'mainUp' | 'mainDown' | 'mainLeft' | 'mainRight',
         (number | 'leftAxes' | 'rightAxes' | 'mainAxes' | 'mouseAxes' | 'clickLeft' | 'clickRight')?,
         string?,
     ]>) => binds.forEach(([key, code, name]) => self.mapper[key] = { code, name: name || key });
-const bindGamepad = bindKeys(gamepad);
-const bindKeymouse = bindKeys(keymouse);
-bindGamepad(
+const gamepadBinder = [
     ['LA', 'leftAxes'], ['RA', 'rightAxes'],
     ['LB', 4], ['RB', 5],
     ['LT', 6], ['RT', 7],
@@ -93,8 +40,8 @@ bindGamepad(
     ['up', 12], ['down', 13], ['left', 14], ['right', 15],
     ['A', 0], ['B', 1], ['X', 2], ['Y', 3],
     ['select', 8], ['start', 9],
-);
-bindKeymouse(
+];
+const keymouseBinder = [
     ['mainUp', 87, 'KeyW'], ['mainDown', 83, 'KeyS'], ['mainLeft', 65, 'KeyA'], ['mainRight', 68, 'KeyD'],
     ['LA', 'mainAxes'], ['RA', 'mouseAxes'],
     ['LB', 'clickLeft', 'ClickLeft'], ['RB', 'clickRight', 'ClickRight'],
@@ -103,45 +50,90 @@ bindKeymouse(
     ['up', 38, 'ArrowUp'], ['down', 40, 'ArrowDown'], ['left', 37, 'ArrowLeft'], ['right', 39, 'ArrowRight'],
     ['A'/*,  unused */], ['B'/*,  unused */], ['X', 81, 'KeyQ'], ['Y', 69, 'KeyE'],
     ['select', 27, 'Escape'], ['start', 13, 'Enter'],
-);
-
-// 键位状态
-const keys = Object.keys({ ...gamepad.mapper }).map(key => [
-    key, () => keymouse.of(key as any) || gamepad.of(key as any),
-]).reduce((props, [key, get]) => ({ ...props, [key as string]: { get } }), {});
+];
 //#endregion
 
-export default class Controller {
-    protected readonly logic: Logic;
-    public readonly domElement = defaultConfig.domElement;
+interface ControllerConfig {
+    domElement: HTMLElement;
+}
 
-    public moveSpeed = defaultConfig.moveSpeed;
-    public jumpSpeed = defaultConfig.jumpSpeed;
-    public lookSpeed = defaultConfig.lookSpeed;
-    public pitchSpeed = defaultConfig.pitchSpeed;
+export default abstract class Controller {
+    public readonly domElement = document.body;
 
-    public readonly keys = keys; // TODO type it.
+    constructor(config?: ControllerConfig) {
+        config && config.domElement && (this.domElement = config.domElement);
 
-    constructor(logic: Logic, config?: DefaultConfig) {
-        this.logic = logic;
-
-        const self = {
-            // readonly
-            keys, gamepad, keymouse, bindGamepad, bindKeymouse,
-            freePointerLock: () => (document as any).exitPointerLock(),
-        };
+        this.bindGamepad(...gamepadBinder as any);
+        this.bindKeymouse(...keymouseBinder as any);
         this.mount();
-        config && Object.keys(config).forEach(name => {
-            if (!self.hasOwnProperty(name)) {
-                // tslint:disable-next-line: no-console
-                console.warn(`ignored unsupport prop: ${name}.`);
-                return;
-            }
-            this[name] = config[name];
-        });
     }
 
-    public readonly update = (time: number, delta: number) => this.logic.update(time, delta);
+    /**
+     * 控制器每帧更新.
+     * @param time 当前游戏经过时长.
+     * @param delta 上一帧到当前帧时长.
+     */
+    public abstract update(time: number, delta: number): void;
+
+    //#region private.手柄键盘辅助
+
+    private readonly gamepad = {
+        mapper: { ...gamepadMapper as any },
+        get leftAxes() {
+            const gamepad = this._gamepad;
+            return gamepad ? gamepad.axes.slice(0, 2) : [0, 0];
+        },
+        get rightAxes() {
+            const gamepad = this._gamepad;
+            return gamepad ? gamepad.axes.slice(2, 4) : [0, 0];
+        },
+        of(key: keyof GamepadMapper) {
+            const code = this.mapper[key].code;
+            if (this.hasOwnProperty(code)) {
+                return this[code];
+            }
+            const gamepad = this._gamepad;
+            return gamepad && gamepad.buttons[code].pressed;
+        },
+
+        get _gamepad() { return navigator.getGamepads()[0]; },
+    };
+
+    private readonly keymouse = {
+        mapper: { ...keymouseMapper as any },
+        get mainAxes() {
+            const x = (this.of('mainLeft') ? -1 : 0) + (this.of('mainRight') ? 1 : 0);
+            const y = (this.of('mainUp') ? -1 : 0) + (this.of('mainDown') ? 1 : 0);
+            const d = Math.sqrt(x ** 2 + y ** 2);
+            return d === 0 ? null : [x / d, y / d];
+        },
+        _mouseAxes: [0, 0],
+        get mouseAxes() { return this._mouseAxes; }, set mouseAxes([x, y]: number[]) {
+            if (x === 0 && y === 0) {
+                this._mouseAxes = [0, 0];
+                return;
+            }
+            this._mouseAxes = [x / 100, y / 100];
+        },
+        of(key: keyof KeymouseMapper | 'clickLeft' | 'clickRight') {
+            const code = this.mapper[key].code;
+            return this[code] || this.buttons[code];
+        },
+
+        buttons: { clickLeft: false, clickRight: false/*, keyCode: pressed */ },
+        pointerLocked: false,
+    };
+
+    private readonly keys = Object.keys({ ...this.gamepad.mapper }).map(key => [
+        key, () => this.keymouse.of(key as any) || this.gamepad.of(key as any),
+    ]).reduce((props, [key, get]) => ({ ...props, [key as string]: { get } }), {});
+    //#endregion
+
+    public readonly bindGamepad = bindKeys(this.gamepad);
+    public readonly bindKeymouse = bindKeys(this.keymouse);
+
+    public key(key: keyof typeof gamepadKeyMapper): boolean { return this.keys[key].get(); }
+    public axes(key: keyof typeof gamepadAxesMapper): [number, number] { return this.keys[key].get(); }
 
     //#region private.控制事件辅助
 
@@ -149,7 +141,7 @@ export default class Controller {
 
     private readonly onMouseDown = (event: MouseEvent) => {
         this.domElement.focus();
-        if (!keymouse.pointerLocked) {
+        if (!this.keymouse.pointerLocked) {
             (this.domElement as any).requestPointerLock();
             return;
         }
@@ -157,23 +149,23 @@ export default class Controller {
         event.preventDefault();
         event.stopPropagation();
         const button = ['clickLeft', null, 'clickRight'][event.button];
-        button && (keymouse.buttons[button] = true);
+        button && (this.keymouse.buttons[button] = true);
     }
     private readonly onMouseUp = (event: MouseEvent) => {
         event.preventDefault();
         event.stopPropagation();
         const button = ['clickLeft', null, 'clickRight'][event.button];
-        button && (keymouse.buttons[button] = false);
+        button && (this.keymouse.buttons[button] = false);
     }
-    private readonly onMouseMove = (event: MouseEvent) => keymouse.mouseAxes = [event.movementX, event.movementY];
+    private readonly onMouseMove = (event: MouseEvent) => this.keymouse.mouseAxes = [event.movementX, event.movementY];
     private readonly onPointerLockChange = () => {
         if ((document as any).pointerLockElement === this.domElement) {
-            keymouse.pointerLocked = true;
+            this.keymouse.pointerLocked = true;
             this.domElement.parentElement!.classList.add('pointer-locked');
             this.domElement.addEventListener('mousemove', this.onMouseMove, false);
             return;
         }
-        keymouse.pointerLocked = false;
+        this.keymouse.pointerLocked = false;
         this.domElement.parentElement!.classList.remove('pointer-locked');
         this.domElement.removeEventListener('mousemove', this.onMouseMove, false);
     }
@@ -182,20 +174,20 @@ export default class Controller {
     //#region 键盘事件
 
     private readonly onKeyDown = (event: KeyboardEvent) => {
-        if (!keymouse.pointerLocked) {
+        if (!this.keymouse.pointerLocked) {
             return;
         }
         event.preventDefault();
         event.stopPropagation();
-        keymouse.buttons[event.keyCode] = true;
+        this.keymouse.buttons[event.keyCode] = true;
     }
     private readonly onKeyUp = (event: KeyboardEvent) => {
-        if (!keymouse.pointerLocked) {
+        if (!this.keymouse.pointerLocked) {
             return;
         }
         event.preventDefault();
         event.stopPropagation();
-        keymouse.buttons[event.keyCode] = false;
+        this.keymouse.buttons[event.keyCode] = false;
     }
     //#endregion
 
@@ -234,16 +226,18 @@ export default class Controller {
     }
     //#endregion
 
+    /**
+     * 挂载控制器，初始化完成时会默认挂载一次.
+     */
     public readonly mount = this.mountHelp(true);
+
+    /**
+     * 卸载控制器.
+     */
     public readonly unmount = this.mountHelp(false);
+
+    /**
+     * 释放光标.
+     */
     public readonly freePointerLock = () => (document as any).exitPointerLock();
-}
-
-export abstract class Logic {
-    protected scene: Phaser.Scene;
-    constructor(scene: Phaser.Scene) {
-        this.scene = scene;
-    }
-
-    public abstract update(time: number, delta: number): void;
 }

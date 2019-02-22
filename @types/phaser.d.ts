@@ -17040,7 +17040,7 @@ declare namespace Phaser {
              * @param color The stroke color.
              * @param alpha The stroke alpha. Default 1.
              */
-            lineStyle(lineWidth: number, color: number, alpha?: number): Phaser.GameObjects.Graphics;
+            lineStyle(lineWidth?: number, color?: number, alpha?: number): Phaser.GameObjects.Graphics;
 
             /**
              * Set the current fill style.
@@ -47676,8 +47676,8 @@ declare namespace Phaser {
             /**
              * Returns a random element from within the given array.
              * @param array The array to pick a random element from.
-             */
-            pick(array: any[]): any;
+             */ // TODO fixType
+            pick<T>(array: T[]): T;
 
             /**
              * Returns a sign to be used with multiplication operator.

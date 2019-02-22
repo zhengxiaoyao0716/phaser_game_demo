@@ -1,5 +1,8 @@
 {
     "files.eol": "\n",
     "tslint.alwaysShowRuleFailuresAsWarnings": false,
-    "typescript.reportStyleChecksAsWarnings": false
+    "typescript.reportStyleChecksAsWarnings": false,
+    "search.exclude": {
+        "**/@types": true
+    }
 }

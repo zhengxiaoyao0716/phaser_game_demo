@@ -6,43 +6,45 @@ export const texture = (scene: Phaser.Scene) => ({
                 color?: number,
                 alpha?: number,
             },
-            line?: { lineWidth: number, color: number, alpha?: number },
+            line?: { width?: number, color?: number, alpha?: number },
         } = {},
     ) => {
+        const border = (line && line.width) ? 2 * line.width : 0;
+        const border2 = border * 2;
         const newGraphics = () => {
             const graphics = new Phaser.GameObjects.Graphics(scene);
             fill && fill.color && graphics.fillStyle(fill.color, fill.alpha);
-            line && graphics.lineStyle(line.lineWidth, line.color, line.alpha);
+            line && graphics.lineStyle(line.width, line.color, line.alpha);
             return graphics;
         };
         return {
             ellipseShape: (shape: Phaser.Geom.Ellipse, smoothness?: integer) => newGraphics()
                 .fillEllipseShape(shape, smoothness)
                 .strokeEllipseShape(shape, smoothness)
-                .generateTexture(key, 2 * shape.width, 2 * shape.height),
+                .generateTexture(key, 2 * shape.width + border2, 2 * shape.height + border2),
             ellipse(width: number, height: number, smoothness?: integer) {
-                return this.ellipseShape(new Phaser.Geom.Ellipse(width, height, width, height), smoothness);
+                return this.ellipseShape(new Phaser.Geom.Ellipse(border + width, border + height, width, height), smoothness);
             },
             circleShape: (shape: Phaser.Geom.Circle) => newGraphics()
                 .fillCircleShape(shape)
                 .strokeCircleShape(shape)
-                .generateTexture(key, 2 * shape.radius, 2 * shape.radius),
+                .generateTexture(key, 2 * shape.radius + border2, 2 * shape.radius + border2),
             circle(radius: number) {
-                return this.circleShape(new Phaser.Geom.Circle(radius, radius, radius));
+                return this.circleShape(new Phaser.Geom.Circle(border + radius, border + radius, radius));
             },
             rectShape: (shape: Phaser.Geom.Rectangle) => newGraphics()
                 .fillRectShape(shape)
                 .strokeRectShape(shape)
-                .generateTexture(key, shape.width, shape.height),
+                .generateTexture(key, shape.width + border2, shape.height + border2),
             rect(width: number, height: number) {
-                return this.rectShape(new Phaser.Geom.Rectangle(0, 0, width, height));
+                return this.rectShape(new Phaser.Geom.Rectangle(border, border, width, height));
             },
             trianShape: (shape: Phaser.Geom.Triangle) => newGraphics()
                 .fillTriangleShape(shape)
                 .strokeTriangleShape(shape)
-                .generateTexture(key, shape.right, shape.bottom),
+                .generateTexture(key, shape.right + border2, shape.bottom + border2),
             trian(width: number, height: number, sharp: number) {
-                return this.trianShape(new Phaser.Geom.Triangle(sharp, 0, 0, height, width, height));
+                return this.trianShape(new Phaser.Geom.Triangle(border + sharp, border, border, border + height, border + width, border + height));
             },
         };
     },

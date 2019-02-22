@@ -1,14 +1,14 @@
 import * as mock from './util/mock';
-import { create as createController, controller } from './util/controller';
-import { create as createBarrage, barrage } from './barrage';
-import { create as createPlayer, preload as preloadPlayer, player } from './player';
+import { preload as preloadBarrage, create as createBarrage, update as updateBarrage } from './barrage';
+import { preload as preloadPlayer, create as createPlayer, update as updatePlayer } from './player';
+import { GameState, GameProps } from '.';
 
 export function preload(this: Phaser.Scene) {
     const texture = mock.texture(this);
 
     texture.shape('background', { fill: { color: 0x66CCFF } }).rect(800, 600);
-    texture.shape('redCircle', { fill: { color: 0xEE0000 } }).circle(12);
 
+    preloadBarrage(this);
     preloadPlayer(this);
 }
 
@@ -17,11 +17,13 @@ export async function create(this: Phaser.Scene) {
 
     createBarrage(this);
     await createPlayer(this);
-    this.physics.add.overlap(player, barrage);
-
-    createController(this);
 }
 
 export function update(this: Phaser.Scene, time: number, delta: number) {
-    controller && controller.update(time, delta);
+    updatePlayer(this, time, delta);
+    updateBarrage(this, time, delta);
+}
+
+export function render(this: Phaser.Scene, props: GameProps, state: GameState) {
+    console.log('render', props, state);
 }
