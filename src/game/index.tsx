@@ -1,6 +1,7 @@
 import * as Phaser from 'phaser';
 import * as React from 'react';
-import { create, preload, update, render } from './scene0';
+import * as scene0 from './scene0';
+import * as scene1 from './scene1';
 
 export interface GameProps {
     config: GameConfig;
@@ -14,7 +15,10 @@ export class Game extends React.Component<GameProps> {
 
     public readonly game = new Phaser.Game({
         ...this.props.config,
-        scene: [{ preload, create, update }],
+        scene: [
+            scene0,
+            scene1,
+        ],
     });
 
     public componentWillUnmount() {
@@ -22,7 +26,7 @@ export class Game extends React.Component<GameProps> {
     }
 
     public render() {
-        render.call(this.game.scene, this.props, this.state);
+        scene0.render.call(this.game.scene, this.props, this.state);
         return (<div id="gameContainer" />);
     }
 }

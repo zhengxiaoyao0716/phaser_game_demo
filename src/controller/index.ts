@@ -45,10 +45,10 @@ const keymouseBinder = [
     ['mainUp', 87, 'KeyW'], ['mainDown', 83, 'KeyS'], ['mainLeft', 65, 'KeyA'], ['mainRight', 68, 'KeyD'],
     ['LA', 'mainAxes'], ['RA', 'mouseAxes'],
     ['LB', 'clickLeft', 'ClickLeft'], ['RB', 'clickRight', 'ClickRight'],
-    ['LT', 17, 'ControlLeft'], ['RT', 32, 'Space'],
+    ['LT', 17, 'ControlLeft'], ['RT'/*,  unused */],
     ['L', 16, 'ShiftLeft'], ['R', 20, 'CapsLock'],
     ['up', 38, 'ArrowUp'], ['down', 40, 'ArrowDown'], ['left', 37, 'ArrowLeft'], ['right', 39, 'ArrowRight'],
-    ['A'/*,  unused */], ['B'/*,  unused */], ['X', 81, 'KeyQ'], ['Y', 69, 'KeyE'],
+    ['A', 32, 'Space'], ['B'/*,  unused */], ['X', 81, 'KeyQ'], ['Y', 69, 'KeyE'],
     ['select', 27, 'Escape'], ['start', 13, 'Enter'],
 ];
 //#endregion

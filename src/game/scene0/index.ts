@@ -1,8 +1,10 @@
 import * as mock from '../util/mock';
-import { preload as preloadPlatform, create as createPlatform, update as updatePlatform } from './platform';
-import { preload as preloadPlayer, create as createPlayer, update as updatePlayer } from '../player';
+import { preload as preloadPlatform, create as createPlatform, update as updatePlatform, platform } from './platform';
+import { preload as preloadPlayer, create as createPlayer, update as updatePlayer, player, onPlayerCollider } from '../player';
 import { GameState, GameProps } from '..';
 import { gameConfig } from 'src/App';
+
+export const key = 'Scene0';
 
 export function preload(this: Phaser.Scene) {
     const texture = mock.texture(this);
@@ -17,7 +19,8 @@ export async function create(this: Phaser.Scene) {
     this.add.image(gameConfig.width / 2, gameConfig.height / 2, 'background');
 
     createPlatform(this);
-    await createPlayer(this);
+    await createPlayer(this, gameConfig.width / 3, 30);
+    this.physics.add.collider(player, platform, onPlayerCollider);
 }
 
 export function update(this: Phaser.Scene, time: number, delta: number) {
@@ -26,5 +29,5 @@ export function update(this: Phaser.Scene, time: number, delta: number) {
 }
 
 export function render(this: Phaser.Scene, props: GameProps, state: GameState) {
-    console.log('render', props, state);
+    // console.log('render', props, state);
 }

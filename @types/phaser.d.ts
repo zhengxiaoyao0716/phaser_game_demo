@@ -648,9 +648,11 @@ declare type PluginObject = {
 };
 
 declare type SenceConfig = {
+    key: string,
     preload?: (this: Phaser.Scene) => void,
     create?: (this: Phaser.Scene) => void,
     update?: (this: Phaser.Scene, time: number, delta: number) => void,
+    active?: boolean,
 };
 
 declare type GameConfig = {
