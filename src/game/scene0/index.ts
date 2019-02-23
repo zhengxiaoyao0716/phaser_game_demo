@@ -18,10 +18,20 @@ export async function create(this: Phaser.Scene) {
     this.add.image(gameConfig.width / 2, gameConfig.height / 2, 'background');
 
     createPlatform(this);
-    await createPlayer(this, gameConfig.width / 3, 100);
-    this.physics.add.collider(player, platforms);
-    this.physics.add.collider(player, borders);
-    this.physics.add.collider(player, deadlineZone, onDie);
+    await createPlayer(this, 0, 0);
+    player.setGravityY(0);
+    player.setActive(false);
+    player.setVisible(false);
+}
+
+export function initPlayer(scene:Phaser.Scene) {
+    player.setX(gameConfig.width / 2).setY(400);
+    player.setActive(true);
+    player.setVisible(true);
+    player.setGravityY(500);
+    scene.physics.add.collider(player, platforms);
+    scene.physics.add.collider(player, borders);
+    scene.physics.add.collider(player, deadlineZone, onDie);
 }
 
 function onDie(player: Phaser.Physics.Arcade.Sprite){

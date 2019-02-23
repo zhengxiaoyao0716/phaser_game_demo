@@ -1,12 +1,17 @@
 import * as mock from '../util/mock';
 import { gameConfig } from 'src/App';
 import asset from './asset';
+import { controller } from '../player/controller';
+import { initPlayer } from '.';
+import { player } from '../player';
 
 export let platforms: Phaser.Physics.Arcade.Group;
 export let borders: Phaser.Physics.Arcade.StaticGroup;
 export let deadlineZone: Phaser.Physics.Arcade.StaticGroup;
 export let power: Phaser.Physics.Arcade.Group;
-export let mainImg : Phaser.GameObjects.Image;
+
+let mainImg : Phaser.GameObjects.Image;
+let wechat : Phaser.GameObjects.Image;
 export let start = false;
 
 const platformSpriteType = 'platformSprite';
@@ -34,19 +39,24 @@ export const preload = (scene: Phaser.Scene) => {
     });
     scene.load.image('wechat', asset.wechat);
     scene.load.image('main', asset.main);
+    scene.load.image('power', asset.power);
 };
 
 export const create = (scene: Phaser.Scene) => {
     platforms = scene.physics.add.group();
+    wechat = scene.add.image(gameConfig.width / 2, gameConfig.height / 2, 'wechat');
+    wechat.setVisible(false);
     mainImg = scene.add.image(gameConfig.width / 2, gameConfig.height / 2, 'main');
+
+    power = scene.physics.add.group();
     
     // create left border and right border
     createBorder(scene);
 };
 
 const createBorder = (scene: Phaser.Scene) => {
-    const phoneWidth = 401;
-    const deadlineY = 100;
+    const phoneWidth = 700;
+    const deadlineY = 80;
 
     const centerX = gameConfig.width / 2;
 
@@ -70,15 +80,36 @@ const createBorder = (scene: Phaser.Scene) => {
 };
 
 export const update = (scene: Phaser.Scene, time: number, delta: number) => {
+    // 开场任意按键，开始游戏
+    if(!start && controller && controller.key('any')) {
+        console.log(controller, player);
+        start = true;
+        mainImg.setVisible(false);
+        startGame(scene);
+    }
+
     if(timeStart === undefined && start){
         timeStart = time;
     }
     
     // 过场动画后，才开始创建场景
-    if(elapse(time) > 3){
+    if(elapse(time) > 0){
         createMsg(scene, time);
     }
 };
+
+function startGame(scene: Phaser.Scene){
+    wechat.setVisible(true);
+    initPlayer(scene);
+    scene.physics.add.collider(platforms, power);
+    scene.physics.add.overlap(player, power, collectPower);
+}
+
+function collectPower (player: Phaser.Physics.Arcade.Sprite, p: Phaser.Physics.Arcade.Sprite)
+{
+    p.disableBody(true, true);
+    powerLeft -= 1;
+}
 
 // sec from start
 const elapse = (now: number) => {
@@ -96,23 +127,19 @@ function createMsg(scene: Phaser.Scene, time: number) {
 
     createPlatform(scene, msgInfo);
     msg.shift();
-    const type = msgInfo[0];
-    if(type !== 'm') {
-        powerLeft =+ 1;
-    }
 }
 
 function createPlatform(scene: Phaser.Scene, msgInfo: Array<string | boolean>) {
     const type = msgInfo[0];
     const key = msgInfo[3] as string;
     
-    const halfScreen = 200;
+    const halfScreen = 345;
 
     const platform = platforms.create(0, 0, key, undefined, false, false) as Phaser.Physics.Arcade.Sprite;
     const w = platform.getTopRight().x - platform.getTopLeft().x;
     const h = platform.getBottomLeft().y - platform.getTopLeft().y;
     let x: number;
-    const y = gameConfig.height + h / 2;
+    const y = gameConfig.height + h / 2 + 100;
     switch (type) {
         case 'l':
             x = gameConfig.width / 2 - halfScreen + w / 2;
@@ -131,4 +158,14 @@ function createPlatform(scene: Phaser.Scene, msgInfo: Array<string | boolean>) {
     platform.setImmovable();
     platform.setVisible(true);
     platform.setActive(true);
+
+    if(type !== 'm') {
+        const p = power.create(0, 0, 'power', undefined, true, true) as Phaser.Physics.Arcade.Sprite;
+        const bound = w / 5;
+    
+        const px = x + bound - w / 2 + Math.random() * (w - bound * 2);
+        p.setX(px).setY(gameConfig.height + 42);
+
+        powerLeft =+ 1;
+    }
 }
