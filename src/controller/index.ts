@@ -54,14 +54,21 @@ const keymouseBinder = [
 //#endregion
 
 export interface ControllerConfig {
-    domElement: HTMLElement;
+    domElement?: HTMLElement;
+    onFocus?: (locked: boolean) => void;
 }
 
 export default abstract class Controller {
     public readonly domElement = document.body;
+    private readonly onFocus = (locked: boolean) => {
+        locked ? this.domElement.requestFullscreen() : document.exitFullscreen();
+    }
 
     constructor(config?: ControllerConfig) {
-        config && config.domElement && (this.domElement = config.domElement);
+        if (config) {
+            config.domElement && (this.domElement = config.domElement);
+            config.onFocus && (this.onFocus = config.onFocus);
+        }
 
         this.bindGamepad(...gamepadBinder as any);
         this.bindKeymouse(...keymouseBinder as any);
@@ -161,10 +168,12 @@ export default abstract class Controller {
     private readonly onPointerLockChange = () => {
         if ((document as any).pointerLockElement === this.domElement) {
             this.keymouse.pointerLocked = true;
+            this.onFocus(true);
             this.domElement.parentElement!.classList.add('pointer-locked');
             this.domElement.addEventListener('mousemove', this.onMouseMove, false);
             return;
         }
+        this.onFocus(false);
         this.keymouse.pointerLocked = false;
         this.domElement.parentElement!.classList.remove('pointer-locked');
         this.domElement.removeEventListener('mousemove', this.onMouseMove, false);

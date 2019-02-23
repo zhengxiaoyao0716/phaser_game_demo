@@ -25,6 +25,7 @@ export const create = (scene: Phaser.Scene) => {
     grounds.push(...new Array(10).fill(null).map((_, index) => {
         const ground = groundGroup.create(index * (groundWidth + 100), gameConfig.height - groundHeight, 'ground') as Phaser.Physics.Arcade.Sprite;
         ground.setImmovable(true);
+        (ground.body as Phaser.Physics.Arcade.Body).setFrictionX(1);
         return ground;
     }));
 

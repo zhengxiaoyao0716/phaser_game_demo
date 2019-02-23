@@ -18,7 +18,7 @@ export async function create(this: Phaser.Scene) {
     this.add.image(gameConfig.width / 2, gameConfig.height / 2, 'background');
 
     createGround(this);
-    await createPlayer(this, 30, gameConfig.height - 200, [[600, gameConfig.height - 200]]);
+    await createPlayer(this, 30, gameConfig.height - 200, [[700, gameConfig.height - 200]]);
     this.physics.add.collider(player, groundGroup);
 }
 

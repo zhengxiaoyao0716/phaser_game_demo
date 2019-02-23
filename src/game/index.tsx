@@ -1,5 +1,5 @@
-import * as Phaser from 'phaser';
 import * as React from 'react';
+import * as Phaser from 'phaser';
 import * as scene0 from './scene0';
 import * as scene1 from './scene1';
 import './index.css';

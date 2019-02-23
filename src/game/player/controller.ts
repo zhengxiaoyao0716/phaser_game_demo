@@ -4,7 +4,10 @@ import { playerHang, playerDown, playerUp } from './anim';
 
 export let controller: Controller;
 
-export const create = (game: Phaser.Game) => controller = new Controller(game);
+export const create = (game: Phaser.Game) => controller = new Controller(game, {
+    domElement: game.domContainer,
+    onFocus: (locked: boolean) => locked ? game.scale.startFullscreen() : game.scale.stopFullscreen(),
+});
 
 const EPSILON = 0.01;
 
