@@ -1,5 +1,5 @@
 import * as mock from '../util/mock';
-import { preload as preloadPlatform, create as createPlatform, update as updatePlatform, platform } from './platform';
+import { preload as preloadPlatform, create as createPlatform, update as updatePlatform, platforms, borders, deadlineZone } from './platform';
 import { preload as preloadPlayer, create as createPlayer, update as updatePlayer, player } from '../player';
 import { GameState, GameProps } from '..';
 import { gameConfig } from 'src/App';
@@ -19,8 +19,14 @@ export async function create(this: Phaser.Scene) {
     this.add.image(gameConfig.width / 2, gameConfig.height / 2, 'background');
 
     createPlatform(this);
-    await createPlayer(this, gameConfig.width / 3, 30);
-    this.physics.add.collider(player, platform);
+    await createPlayer(this, gameConfig.width / 3, 100);
+    this.physics.add.collider(player, platforms);
+    this.physics.add.collider(player, borders);
+    this.physics.add.collider(player, deadlineZone, onDie);
+}
+
+function onDie(player: Phaser.Physics.Arcade.Sprite){
+    // todo
 }
 
 export function update(this: Phaser.Scene, time: number, delta: number) {
