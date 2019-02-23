@@ -16,6 +16,7 @@ export const status: {
         nearPoint: number, // 附近的保存点，-1代表不在附近
         savedAt: number, // 最后一次保存的位置
     },
+    ropeing: boolean,
 } = {
     life: 'alive',
     jumping: true,
@@ -24,6 +25,7 @@ export const status: {
         nearPoint: -1,
         savedAt: 0,
     },
+    ropeing: false,
 };
 
 export const preload = (scene: Phaser.Scene) => {
