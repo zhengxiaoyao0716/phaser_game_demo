@@ -1,8 +1,7 @@
 import * as mock from '../util/mock';
-import { GameState, GameProps } from '..';
 import { gameConfig } from 'src/App';
 import { preload as preloadPlayer, create as createPlayer, update as updatePlayer, player } from '../player';
-import { preload as preloadGround, create as createGround, groundGroup} from './ground';
+import { preload as preloadGround, create as createGround, groundGroup } from './ground';
 
 export const key = 'Scene1';
 
@@ -19,14 +18,10 @@ export async function create(this: Phaser.Scene) {
     this.add.image(gameConfig.width / 2, gameConfig.height / 2, 'background');
 
     createGround(this);
-    await createPlayer(this, 30, gameConfig.height - 300);
+    await createPlayer(this, 30, gameConfig.height - 200, [[600, gameConfig.height - 200]]);
     this.physics.add.collider(player, groundGroup);
 }
 
 export function update(this: Phaser.Scene, time: number, delta: number) {
     updatePlayer(this, time, delta);
-}
-
-export function render(this: Phaser.Scene, props: GameProps, state: GameState) {
-    // console.log('render', props, state);
 }

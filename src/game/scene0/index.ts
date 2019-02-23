@@ -1,7 +1,6 @@
 import * as mock from '../util/mock';
 import { preload as preloadPlatform, create as createPlatform, update as updatePlatform, platform } from './platform';
 import { preload as preloadPlayer, create as createPlayer, update as updatePlayer, player } from '../player';
-import { GameState, GameProps } from '..';
 import { gameConfig } from 'src/App';
 
 export const key = 'Scene0';
@@ -26,8 +25,4 @@ export async function create(this: Phaser.Scene) {
 export function update(this: Phaser.Scene, time: number, delta: number) {
     updatePlayer(this, time, delta);
     updatePlatform(this, time, delta);
-}
-
-export function render(this: Phaser.Scene, props: GameProps, state: GameState) {
-    // console.log('render', props, state);
 }
