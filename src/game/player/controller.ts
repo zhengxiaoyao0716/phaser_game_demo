@@ -29,6 +29,9 @@ export const create = (game: Phaser.Game) => controller = new Controller(game, {
 });
 
 const EPSILON = 0.01;
+const jumpSpeed = 1000;
+const wallingJumpSpeed = 2000;
+const dump = 0.8;
 
 class Controller extends BaseController {
     public game: Phaser.Game;
@@ -39,9 +42,6 @@ class Controller extends BaseController {
     public update(time: number, delta: number): void {
         const la = controller.axes('LA');
         const moveSpeed = controller.key('L') ? 40 : 60;
-        const jumpSpeed = 1000;
-        const wallingJumpSpeed = 2000;
-        const dump = 0.8;
         let speedX = player.body.velocity.x;
 
         if (la[0] > -EPSILON && la[0] < EPSILON) {
@@ -86,17 +86,22 @@ class Controller extends BaseController {
     }
 
     public updateAction(time: number, delta: number): any {
+        const pressedA = this.key('A');
         if (frameStatus.climbing) {
             const la = controller.axes('LA');
             if (la[1] < -EPSILON || la[1] > EPSILON) {
                 const x = player.x;
                 const y = player.y;
-                player.setVelocity(0, 0);
+                player.setVelocityX(0);
                 player.setPosition(x, y + 0.2 * la[1] * delta);
+            }
+            if (pressedA) {
+                player.setVelocityY(-jumpSpeed / 3);
+            } else {
+                player.setVelocityY(0);
             }
             return true;
         }
-        const pressedA = this.key('A');
         if (frameStatus.savepoint && frameStatus.savepoint !== status.savedpoint && pressedA) {
             status.savedpoint = frameStatus.savepoint;
             toast.center('游戏进度已保存', 1000);

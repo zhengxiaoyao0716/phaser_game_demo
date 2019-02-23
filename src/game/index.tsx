@@ -3,6 +3,7 @@ import * as Phaser from 'phaser';
 import * as scene0 from './scene0';
 import * as scene1 from './scene1';
 import './index.css';
+// import test from './scene1/test';
 
 interface GameProps {
     config: GameConfig;
@@ -35,6 +36,7 @@ export class Game extends React.Component<GameProps, GameState> {
         },
         ...this.props.config,
         scene: [
+            // test,
             scene1,
             scene0,
         ],

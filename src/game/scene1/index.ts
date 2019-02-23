@@ -1,6 +1,5 @@
-import { gameConfig } from 'src/App';
 import { preload as preloadPlayer, create as createPlayer, update as updatePlayer, player } from '../player';
-import { preload as preloadGround, create as createGround, groundGroup, rope1 } from './ground';
+import { preload as preloadGround, create as createGround, groundGroup, climbingGroup } from './ground';
 import { frameStatus } from '../player/controller';
 
 export const key = 'Scene1';
@@ -11,12 +10,11 @@ export function preload(this: Phaser.Scene) {
 }
 
 export async function create(this: Phaser.Scene) {
-    createGround(this);
-    await createPlayer(this, 30, gameConfig.height - 200, [[700, gameConfig.height - 130]]);
+    const [birth, ...savepoints] = createGround(this);
+    await createPlayer(this, birth[0], birth[1] - 200, savepoints);
     this.cameras.main.startFollow(player);
-    // this.physics.add.collider(player, groundLayer, (o1, o2) => console.log(o1, o2), () => true);
     this.physics.add.collider(player, groundGroup);
-    this.physics.add.overlap(player, rope1, () => null, () => {
+    this.physics.add.overlap(player, climbingGroup, () => null, () => {
         frameStatus.climbing = true;
         return false;
     });
