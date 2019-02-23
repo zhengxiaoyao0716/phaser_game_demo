@@ -1,6 +1,6 @@
 import * as mock from '../util/mock';
 import { preload as preloadPlatform, create as createPlatform, update as updatePlatform, platform } from './platform';
-import { preload as preloadPlayer, create as createPlayer, update as updatePlayer, player, onPlayerCollider } from '../player';
+import { preload as preloadPlayer, create as createPlayer, update as updatePlayer, player } from '../player';
 import { GameState, GameProps } from '..';
 import { gameConfig } from 'src/App';
 
@@ -20,7 +20,7 @@ export async function create(this: Phaser.Scene) {
 
     createPlatform(this);
     await createPlayer(this, gameConfig.width / 3, 30);
-    this.physics.add.collider(player, platform, onPlayerCollider);
+    this.physics.add.collider(player, platform);
 }
 
 export function update(this: Phaser.Scene, time: number, delta: number) {
