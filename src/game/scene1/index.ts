@@ -1,7 +1,8 @@
 import * as mock from '../util/mock';
 import { gameConfig } from 'src/App';
-import { preload as preloadPlayer, create as createPlayer, update as updatePlayer, player, status } from '../player';
+import { preload as preloadPlayer, create as createPlayer, update as updatePlayer, player } from '../player';
 import { preload as preloadGround, create as createGround, groundGroup, rope1 } from './ground';
+import { frameStatus } from '../player/controller';
 
 export const key = 'Scene1';
 
@@ -21,7 +22,7 @@ export async function create(this: Phaser.Scene) {
     await createPlayer(this, 30, gameConfig.height - 200, [[700, gameConfig.height - 130]]);
     this.physics.add.collider(player, groundGroup);
     this.physics.add.overlap(player, rope1, () => null, () => {
-        status.ropeing = true;
+        frameStatus.climbing = true;
         return false;
     });
 
