@@ -21,6 +21,33 @@ class Controller extends BaseController {
         const wallingJumpSpeed = 1000;
         const dump = 0.8;
         let speedX = player.body.velocity.x;
+        const ropeing = status.ropeing;
+        status.ropeing = false;
+        if (ropeing) {
+            if (la[1] < -EPSILON || la[1] > EPSILON) {
+                player.setVelocityX(0);
+                player.setGravityY(0);
+                const x = player.body.position.x;
+                const y = player.body.position.y;
+                console.log(x, y, player.body.velocity.x);
+                player.setVelocityY(la[1] * 200);
+            }
+            else {
+                player.setVelocityY(0);
+            }
+
+            if (player.body.touching.down) {
+                player.setGravityY(5000);
+                status.ropeing = false;
+            }
+
+            return;
+        }
+        // else
+        // {
+        //     player.setGravityY(5000);
+        // }
+
         if (la[0] > -EPSILON && la[0] < EPSILON) {
             player.setVelocityX(0);
             status.jumping || playerHang(); // 非跳跃中播放休息动画
