@@ -10,6 +10,7 @@ let sheetPromsie: Promise<HTMLImageElement>; // 雪碧图加载锁
 export const status: {
     life: 'alive' | 'boom',
     jumping: boolean,
+    walling: boolean,
     save: {
         nearPoint: number, // 附近的保存点，-1代表不在附近
         savedAt: number, // 最后一次保存的位置
@@ -17,6 +18,7 @@ export const status: {
 } = {
     life: 'alive',
     jumping: true,
+    walling: false,
     save: {
         nearPoint: -1,
         savedAt: 0,
@@ -46,7 +48,7 @@ export const create = async (scene: Phaser.Scene, x: number, y: number, savepoin
     await sheetPromsie;
     player = scene.physics.add.sprite(x, y, 'player');
     player.setCollideWorldBounds(true);
-    player.setGravityY(1000);
+    player.setGravityY(3000);
     (player.body as Phaser.Physics.Arcade.Body).onWorldBounds = true;
     player.body.world.on('worldbounds', onPlayerWorldBounds);
 

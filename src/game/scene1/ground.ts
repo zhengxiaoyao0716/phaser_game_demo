@@ -28,9 +28,12 @@ export const create = (scene: Phaser.Scene) => {
         return ground;
     }));
 
-    const wall = groundGroup.create(500, gameConfig.height - 400, 'wall') as Phaser.Physics.Arcade.Sprite;
-    wall.setImmovable(true);
-    grounds.push(wall);
+    const wall1 = groundGroup.create(480, 1080 - 350 - 50, 'wall') as Phaser.Physics.Arcade.Sprite;
+    wall1.setImmovable(true);
+    grounds.push(wall1);
+    const wall2 = groundGroup.create(620, 1080 - 200 - 50, 'wall') as Phaser.Physics.Arcade.Sprite;
+    wall2.setImmovable(true);
+    grounds.push(wall2);
 };
 
 export const update = (scene: Phaser.Scene, time: number, delta: number) => {
