@@ -94,7 +94,10 @@ export default abstract class Controller {
             const gamepad = this._gamepad;
             return gamepad ? gamepad.axes.slice(2, 4) : [0, 0];
         },
-        of(key: keyof GamepadMapper) {
+        of(key: keyof GamepadMapper | 'any'): any {
+            if (key === 'any') {
+                return Object.keys(gamepadKeyMapper).some(key => this.of(key as any) === true);
+            }
             const code = this.mapper[key].code;
             if (this.hasOwnProperty(code)) {
                 return this[code];
@@ -102,7 +105,6 @@ export default abstract class Controller {
             const gamepad = this._gamepad;
             return gamepad && gamepad.buttons[code].pressed;
         },
-
         get _gamepad() { return navigator.getGamepads()[0]; },
     };
 
@@ -122,16 +124,19 @@ export default abstract class Controller {
             }
             this._mouseAxes = [x / 100, y / 100];
         },
-        of(key: keyof KeymouseMapper | 'clickLeft' | 'clickRight') {
+        of(key: keyof KeymouseMapper | 'clickLeft' | 'clickRight' | 'any') {
+            if (key === 'any') {
+                return this.buttons.any;
+            }
             const code = this.mapper[key].code;
             return this[code] || this.buttons[code];
         },
 
-        buttons: { clickLeft: false, clickRight: false/*, keyCode: pressed */ },
+        buttons: { clickLeft: false, clickRight: false, any: false/*, keyCode: pressed */ },
         pointerLocked: false,
     };
 
-    private readonly keys = Object.keys({ ...this.gamepad.mapper }).map(key => [
+    private readonly keys = [...Object.keys({ ...this.gamepad.mapper }), 'any'].map(key => [
         key, () => this.keymouse.of(key as any) || this.gamepad.of(key as any),
     ]).reduce((props, [key, get]) => ({ ...props, [key as string]: { get } }), {});
     //#endregion
@@ -139,7 +144,7 @@ export default abstract class Controller {
     public readonly bindGamepad = bindKeys(this.gamepad);
     public readonly bindKeymouse = bindKeys(this.keymouse);
 
-    public key(key: keyof typeof gamepadKeyMapper): boolean { return this.keys[key].get(); }
+    public key(key: keyof typeof gamepadKeyMapper | 'any'): boolean { return this.keys[key].get(); }
     public axes(key: keyof typeof gamepadAxesMapper): [number, number] { return this.keys[key].get(); }
 
     //#region private.控制事件辅助
@@ -188,15 +193,18 @@ export default abstract class Controller {
         }
         event.preventDefault();
         event.stopPropagation();
+        this.keymouse.buttons.any = true;
         this.keymouse.buttons[event.keyCode] = true;
     }
     private readonly onKeyUp = (event: KeyboardEvent) => {
+        this.keymouse.buttons.any = false;
+        this.keymouse.buttons[event.keyCode] = false;
+
         if (!this.keymouse.pointerLocked) {
             return;
         }
         event.preventDefault();
         event.stopPropagation();
-        this.keymouse.buttons[event.keyCode] = false;
     }
     //#endregion
 

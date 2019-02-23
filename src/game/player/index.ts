@@ -1,7 +1,8 @@
 import * as mock from '../util/mock';
 import { create as createAmin } from './anim';
 import { create as createController, controller } from './controller';
-import savepoint, { savepointGroup } from './savepoint';
+import savepoint, { savepointGroup, savedPosition } from './savepoint';
+import { toast } from '..';
 
 export let player: Phaser.Physics.Arcade.Sprite;
 
@@ -51,6 +52,7 @@ export const create = async (scene: Phaser.Scene, x: number, y: number, savepoin
     player.setGravityY(3000);
     (player.body as Phaser.Physics.Arcade.Body).onWorldBounds = true;
     player.body.world.on('worldbounds', onPlayerWorldBounds);
+    player.setZ(-1);
 
     createAmin(scene);
     createController(scene.game);
@@ -73,10 +75,17 @@ const onPlayerWorldBounds = (body: Phaser.Physics.Arcade.Body, up: boolean, down
     if (down) {
         status.life = 'boom';
         player.setVelocityX(0);
+        player.setPosition(...savedPosition());
+        setTimeout(() => status.life = 'alive', 500);
     }
 };
 
 const onSavepoint = (_player: Phaser.Physics.Arcade.Sprite, point: Phaser.GameObjects.GameObject) => {
-    status.save.nearPoint = point.getData('index');
+    if (point.active) {
+        status.save.nearPoint = point.getData('index');
+        if (status.save.nearPoint !== status.save.savedAt) {
+            toast.center('按【空格】/【A】键保存', 3000);
+        }
+    }
     return false;
 };

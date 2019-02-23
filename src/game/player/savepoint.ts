@@ -1,7 +1,9 @@
 import * as mock from '../util/mock';
+import { status } from '.';
 
 export let savepointGroup: Phaser.Physics.Arcade.Group;
-export let savepoints: Phaser.GameObjects.Image[];
+let savepoints: Phaser.GameObjects.Image[];
+export const savedPosition = (): [number, number] => savepoints[status.save.savedAt].getData('position');
 
 const savepointType = 'savepoint';
 
@@ -17,6 +19,7 @@ export default {
             point.type = savepointType;
             point.name = `${savepointType}${index}`;
             point.setData('index', index);
+            point.setData('position', [x, y]);
             if (active != null) {
                 point.visible = active;
                 point.active = active;

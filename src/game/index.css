@@ -1,16 +1,16 @@
-#Game>#container {
+.Game>#container {
   position: absolute;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
   text-align: center;
 }
-#Game>#container>canvas {
+.Game>#container>canvas {
   max-width: 100%;
   max-height: 100%;
 }
 
-#Game>#centerTip {
+.Game>#centerTip {
   position: absolute;
   width: 100vw;
   top: 48vh;

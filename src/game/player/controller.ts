@@ -1,6 +1,7 @@
 import BaseController, { ControllerConfig } from 'src/controller';
 import { player, status } from '../player';
 import { playerHang, playerDown, playerUp } from './anim';
+import { toast } from '..';
 
 export let controller: Controller;
 
@@ -66,11 +67,13 @@ class Controller extends BaseController {
     }
 
     public updateAction(time: number, delta: number): any {
+        console.log(this.key('any'));
+        const pressedA = this.key('A');
         const { nearPoint, savedAt } = status.save;
         status.save.nearPoint = -1;
-        if (nearPoint !== -1 && nearPoint !== savedAt) {
-            this.key('A') && console.log('saved');
+        if (nearPoint !== -1 && nearPoint !== savedAt && pressedA) {
             status.save.savedAt = nearPoint;
+            toast.center('游戏进度已保存', 1000);
             return true;
         }
     }
