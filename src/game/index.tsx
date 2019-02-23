@@ -1,6 +1,6 @@
 import * as Phaser from 'phaser';
 import * as React from 'react';
-import { create, preload, update, render } from './game';
+import { create, preload, update, render } from './scene0';
 
 export interface GameProps {
     config: GameConfig;
@@ -14,7 +14,7 @@ export class Game extends React.Component<GameProps> {
 
     public readonly game = new Phaser.Game({
         ...this.props.config,
-        scene: { preload, create, update },
+        scene: [{ preload, create, update }],
     });
 
     public componentWillUnmount() {

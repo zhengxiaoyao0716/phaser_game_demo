@@ -1,7 +1,8 @@
 import * as mock from '../util/mock';
 import { create as createAmin, update as updateAnim } from './anim';
 import { create as createController, controller } from './controller';
-import { barrage, isBullet } from '../barrage';
+import { platform } from '../scene0/platform';
+import { gameConfig } from 'src/App';
 
 export let player: Phaser.Physics.Arcade.Sprite;
 
@@ -28,10 +29,11 @@ export const preload = (scene: Phaser.Scene) => {
 
 export const create = async (scene: Phaser.Scene) => {
     await sheetPromsie;
-    player = scene.physics.add.sprite(400, 580, 'player');
+    player = scene.physics.add.sprite(gameConfig.width / 4, 50, 'player');
     player.setCollideWorldBounds(true);
+    player.setGravityY(1000);
 
-    scene.physics.add.overlap(player, barrage, boom);
+    scene.physics.add.collider(player, platform);
 
     createAmin(scene);
     createController(scene);
@@ -46,13 +48,5 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
             break;
         case 'boom':
             break;
-    }
-};
-
-const boom = (_player: Phaser.Physics.Arcade.Sprite, object: Phaser.GameObjects.GameObject) => {
-    if (isBullet(object) && object.active) {
-        status = 'boom';
-        player.setVelocity(0, 100);
-        player.anims.play('playerBoom', true);
     }
 };

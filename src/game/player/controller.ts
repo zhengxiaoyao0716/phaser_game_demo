@@ -9,6 +9,7 @@ class Controller extends BaseController {
     public update(time: number, delta: number): void {
         const la = controller.axes('LA');
         const moveSpeed = controller.key('L') ? 100 : 300;
-        player.setVelocity(la[0] * moveSpeed, la[1] * moveSpeed);
+        player.setVelocityX(la[0] * moveSpeed);
+        la[1] < 0 && player.setVelocityY(la[1] * 500);
     }
 }
