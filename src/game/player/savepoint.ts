@@ -3,7 +3,7 @@ import { status } from '.';
 
 export let savepointGroup: Phaser.Physics.Arcade.Group;
 let savepoints: Phaser.GameObjects.Image[];
-export const savedPosition = (): [number, number] => savepoints[status.save.savedAt].getData('position');
+export const savedPosition = (): [number, number] => savepoints[status.savedpoint].getData('position');
 
 const savepointType = 'savepoint';
 

@@ -5,6 +5,24 @@ import { toast } from '..';
 
 export let controller: Controller;
 
+/**
+ * 这个缓存状态会0.1s去抖动重置
+ */
+export let frameStatus: {
+    savepoint?: number, // 附近的保存点，-1代表不在附近
+    climbing?: boolean, // 在可攀爬处？
+} = new Proxy({}, {
+    get: (target, name, _receiver) => {
+        return target[name] && target[name].value;
+    },
+    set: (target, name, value, _receiver) => {
+        target[name] && target[name].timeout && clearTimeout(target[name].timeout);
+        const timeout = setTimeout(() => target[name] = null, 100);
+        target[name] = { value, timeout };
+        return true;
+    },
+});
+
 export const create = (game: Phaser.Game) => controller = new Controller(game, {
     domElement: game.domContainer,
     onFocus: (locked: boolean) => locked ? game.scale.startFullscreen() : game.scale.stopFullscreen(),
@@ -22,35 +40,9 @@ class Controller extends BaseController {
         const la = controller.axes('LA');
         const moveSpeed = controller.key('L') ? 40 : 60;
         const jumpSpeed = 1000;
-        const wallingJumpSpeed = 1000;
+        const wallingJumpSpeed = 2000;
         const dump = 0.8;
         let speedX = player.body.velocity.x;
-        const ropeing = status.ropeing;
-        status.ropeing = false;
-        if (ropeing) {
-            if (la[1] < -EPSILON || la[1] > EPSILON) {
-                player.setVelocityX(0);
-                player.setGravityY(0);
-                const x = player.body.position.x;
-                const y = player.body.position.y;
-                console.log(x, y, player.body.velocity.x);
-                player.setVelocityY(la[1] * 200);
-            }
-            else {
-                player.setVelocityY(0);
-            }
-
-            if (player.body.touching.down) {
-                player.setGravityY(5000);
-                status.ropeing = false;
-            }
-
-            return;
-        }
-        // else
-        // {
-        //     player.setGravityY(5000);
-        // }
 
         if (la[0] > -EPSILON && la[0] < EPSILON) {
             player.setVelocityX(0);
@@ -85,21 +77,28 @@ class Controller extends BaseController {
         }
         if (left && buttonA && la[0] < -EPSILON) {
             status.walling = true;
-            player.setVelocity(1 * wallingJumpSpeed, -jumpSpeed);
+            player.setVelocity(1 * wallingJumpSpeed, -jumpSpeed * 3 / 4);
         }
         if (right && buttonA && la[0] > EPSILON) {
             status.walling = true;
-            player.setVelocity(-1 * wallingJumpSpeed, -jumpSpeed);
+            player.setVelocity(-1 * wallingJumpSpeed, -jumpSpeed * 3 / 4);
         }
     }
 
     public updateAction(time: number, delta: number): any {
-        console.log(this.key('any'));
+        if (frameStatus.climbing) {
+            const la = controller.axes('LA');
+            if (la[1] < -EPSILON || la[1] > EPSILON) {
+                const x = player.x;
+                const y = player.y;
+                player.setVelocity(0, 0);
+                player.setPosition(x, y + 0.2 * la[1] * delta);
+            }
+            return true;
+        }
         const pressedA = this.key('A');
-        const { nearPoint, savedAt } = status.save;
-        status.save.nearPoint = -1;
-        if (nearPoint !== -1 && nearPoint !== savedAt && pressedA) {
-            status.save.savedAt = nearPoint;
+        if (frameStatus.savepoint && frameStatus.savepoint !== status.savedpoint && pressedA) {
+            status.savedpoint = frameStatus.savepoint;
             toast.center('游戏进度已保存', 1000);
             return true;
         }

@@ -37,6 +37,7 @@ export class Game extends React.Component<GameProps, GameState> {
     private toast(key: keyof typeof toast) {
         let timer: any;
         return (message: string, timeout?: number) => {
+            if (message === this.state.toast[key]) return () => null;
             timer && clearTimeout(timeout);
             this.setState({ toast: { [key]: message } });
             const clear = () => message === this.state.toast[key] && this.setState({ toast: { [key]: '' } });

@@ -1,9 +1,10 @@
 import * as mock from '../util/mock';
 import { create as createAmin } from './anim';
-import { create as createController, controller } from './controller';
+import { create as createController, controller, frameStatus } from './controller';
 import savepoint, { savepointGroup, savedPosition } from './savepoint';
 import { toast } from '..';
 
+export let playerGroup: Phaser.Physics.Arcade.Group;
 export let player: Phaser.Physics.Arcade.Sprite;
 
 let sheetPromsie: Promise<HTMLImageElement>; // 雪碧图加载锁
@@ -12,20 +13,12 @@ export const status: {
     life: 'alive' | 'boom',
     jumping: boolean,
     walling: boolean,
-    save: {
-        nearPoint: number, // 附近的保存点，-1代表不在附近
-        savedAt: number, // 最后一次保存的位置
-    },
-    ropeing: boolean,
+    savedpoint: number, // 最后一次保存的位置
 } = {
     life: 'alive',
     jumping: true,
     walling: false,
-    save: {
-        nearPoint: -1,
-        savedAt: 0,
-    },
-    ropeing: false,
+    savedpoint: 0,
 };
 
 export const preload = (scene: Phaser.Scene) => {
@@ -48,17 +41,18 @@ export const preload = (scene: Phaser.Scene) => {
 };
 
 export const create = async (scene: Phaser.Scene, x: number, y: number, savepoints: Array<[number, number, boolean?]> = []) => {
+    savepoint.create(scene, [[x, y, false], ...savepoints]);
+
     await sheetPromsie;
-    player = scene.physics.add.sprite(x, y, 'player');
+    playerGroup = scene.physics.add.group();
+    player = playerGroup.create(x, y, 'player');
     player.setCollideWorldBounds(true);
     player.setGravityY(3000);
     (player.body as Phaser.Physics.Arcade.Body).onWorldBounds = true;
     player.body.world.on('worldbounds', onPlayerWorldBounds);
-    player.setZ(-1);
 
     createAmin(scene);
     createController(scene.game);
-    savepoint.create(scene, [[x, y, false], ...savepoints]);
     scene.physics.add.overlap(player, savepointGroup, () => null, onSavepoint);
 };
 
@@ -84,8 +78,8 @@ const onPlayerWorldBounds = (body: Phaser.Physics.Arcade.Body, up: boolean, down
 
 const onSavepoint = (_player: Phaser.Physics.Arcade.Sprite, point: Phaser.GameObjects.GameObject) => {
     if (point.active) {
-        status.save.nearPoint = point.getData('index');
-        if (status.save.nearPoint !== status.save.savedAt) {
+        frameStatus.savepoint = point.getData('index');
+        if (frameStatus.savepoint !== status.savedpoint) {
             toast.center('按【空格】/【A】键保存', 3000);
         }
     }
