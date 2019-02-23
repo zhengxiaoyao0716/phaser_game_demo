@@ -9,9 +9,11 @@ let sheetPromsie: Promise<HTMLImageElement>; // 雪碧图加载锁
 export const status: {
     life: 'alive' | 'boom',
     jumping: boolean,
+    walling: boolean,
 } = {
     life: 'alive',
     jumping: true,
+    walling: false,
 };
 
 export const preload = (scene: Phaser.Scene) => {
@@ -35,7 +37,7 @@ export const create = async (scene: Phaser.Scene, x: number, y: number) => {
     await sheetPromsie;
     player = scene.physics.add.sprite(x, y, 'player');
     player.setCollideWorldBounds(true);
-    player.setGravityY(1000);
+    player.setGravityY(3000);
     (player.body as Phaser.Physics.Arcade.Body).onWorldBounds = true;
     player.body.world.on('worldbounds', onPlayerWorldBounds);
 
