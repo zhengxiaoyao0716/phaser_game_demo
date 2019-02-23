@@ -1,5 +1,5 @@
 import * as mock from '../util/mock';
-import { create as createAmin, update as updateAnim } from './anim';
+import { create as createAmin, playerBoom } from './anim';
 import { create as createController, controller } from './controller';
 
 export let player: Phaser.Physics.Arcade.Sprite;
@@ -48,7 +48,6 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
     switch (status.life) {
         case 'alive':
             controller.update(time, delta);
-            updateAnim(scene);
             break;
         case 'boom':
             break;
@@ -56,9 +55,9 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
 };
 
 const onPlayerWorldBounds = (body: Phaser.Physics.Arcade.Body, up: boolean, down: boolean, left: boolean, ight: boolean) => {
-    // TODO .
-};
-
-export const onPlayerCollider = (_player: Phaser.Physics.Arcade.Sprite, object: Phaser.GameObjects.GameObject) => {
-    player.body.touching.down && (status.jumping = false);
+    if (down) {
+        status.life = 'boom';
+        player.setVelocityX(0);
+        playerBoom();
+    }
 };

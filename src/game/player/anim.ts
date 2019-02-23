@@ -2,14 +2,14 @@ import { player } from '.';
 
 export const create = (scene: Phaser.Scene) => {
     scene.anims.create({
-        key: 'playerTop',
+        key: 'playerUp',
         frames: scene.anims.generateFrameNumbers('player', { start: 0, end: 2 }),
         frameRate: 10,
         repeat: -1,
         yoyo: true,
     });
     scene.anims.create({
-        key: 'playerBottom',
+        key: 'playerDown',
         frames: scene.anims.generateFrameNumbers('player', { start: 3, end: 5 }),
         frameRate: 10,
         repeat: -1,
@@ -44,10 +44,9 @@ export const create = (scene: Phaser.Scene) => {
     player.anims.play('playerHang');
 };
 
-export const update = (scene: Phaser.Scene) => {
-    if (player.body.velocity.y < 0) player.anims.play('playerTop', true);
-    else if (player.body.velocity.y > 0) player.anims.play('playerBottom', true);
-    else if (player.body.velocity.x < 0) player.anims.play('playerLeft', true);
-    else if (player.body.velocity.x > 0) player.anims.play('playerRight', true);
-    else player.anims.play('playerHang', true);
-};
+export const playerUp = () => player.anims.play('playerUp', true);
+export const playerDown = () => player.anims.play('playerDown', true);
+export const playerLeft = () => player.anims.play('playerLeft', true);
+export const playerRight = () => player.anims.play('playerRight', true);
+export const playerHang = () => player.anims.play('playerHang', true);
+export const playerBoom = () => player.anims.play('playerBoom', true);
