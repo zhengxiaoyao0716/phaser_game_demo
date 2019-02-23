@@ -53,7 +53,7 @@ const keymouseBinder = [
 ];
 //#endregion
 
-interface ControllerConfig {
+export interface ControllerConfig {
     domElement: HTMLElement;
 }
 

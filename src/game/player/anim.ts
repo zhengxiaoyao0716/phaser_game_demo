@@ -49,4 +49,4 @@ export const playerDown = () => player.anims.play('playerDown', true);
 export const playerLeft = () => player.anims.play('playerLeft', true);
 export const playerRight = () => player.anims.play('playerRight', true);
 export const playerHang = () => player.anims.play('playerHang', true);
-export const playerBoom = () => player.anims.play('playerBoom', true);
+// export const playerBoom = () => player.anims.play('playerBoom', true);

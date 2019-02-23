@@ -1,6 +1,7 @@
 import * as mock from '../util/mock';
-import { create as createAmin, playerBoom } from './anim';
+import { create as createAmin } from './anim';
 import { create as createController, controller } from './controller';
+import savepoint, { savepointGroup } from './savepoint';
 
 export let player: Phaser.Physics.Arcade.Sprite;
 
@@ -9,9 +10,21 @@ let sheetPromsie: Promise<HTMLImageElement>; // 雪碧图加载锁
 export const status: {
     life: 'alive' | 'boom',
     jumping: boolean,
+    walling: boolean,
+    save: {
+        nearPoint: number, // 附近的保存点，-1代表不在附近
+        savedAt: number, // 最后一次保存的位置
+    },
+    ropeing: boolean,
 } = {
     life: 'alive',
     jumping: true,
+    walling: false,
+    save: {
+        nearPoint: -1,
+        savedAt: 0,
+    },
+    ropeing: false,
 };
 
 export const preload = (scene: Phaser.Scene) => {
@@ -29,18 +42,22 @@ export const preload = (scene: Phaser.Scene) => {
         texture.text(`player${index}`, value, { color: 0x99FFFF });
     });
     sheetPromsie = texture.sheet('player', 256, 256, images.map((_, index) => `player${index}`), 32, 64);
+
+    savepoint.preload(scene);
 };
 
-export const create = async (scene: Phaser.Scene, x: number, y: number) => {
+export const create = async (scene: Phaser.Scene, x: number, y: number, savepoints: Array<[number, number, boolean?]> = []) => {
     await sheetPromsie;
     player = scene.physics.add.sprite(x, y, 'player');
     player.setCollideWorldBounds(true);
-    player.setGravityY(1000);
+    player.setGravityY(3000);
     (player.body as Phaser.Physics.Arcade.Body).onWorldBounds = true;
     player.body.world.on('worldbounds', onPlayerWorldBounds);
 
     createAmin(scene);
-    createController(scene);
+    createController(scene.game);
+    savepoint.create(scene, [[x, y, false], ...savepoints]);
+    scene.physics.add.overlap(player, savepointGroup, () => null, onSavepoint);
 };
 
 export const update = (scene: Phaser.Scene, time: number, delta: number) => {
@@ -58,6 +75,10 @@ const onPlayerWorldBounds = (body: Phaser.Physics.Arcade.Body, up: boolean, down
     if (down) {
         status.life = 'boom';
         player.setVelocityX(0);
-        playerBoom();
     }
+};
+
+const onSavepoint = (_player: Phaser.Physics.Arcade.Sprite, point: Phaser.GameObjects.GameObject) => {
+    status.save.nearPoint = point.getData('index');
+    return false;
 };
