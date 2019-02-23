@@ -60,5 +60,6 @@ const onPlayerWorldBounds = (body: Phaser.Physics.Arcade.Body, up: boolean, down
 };
 
 export const onPlayerCollider = (_player: Phaser.Physics.Arcade.Sprite, object: Phaser.GameObjects.GameObject) => {
-    player.body.touching.down && (status.jumping = false);
+    // player.body.touching.down && (status.jumping = false);
+    (status.jumping = false);
 };

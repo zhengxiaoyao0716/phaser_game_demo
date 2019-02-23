@@ -16,7 +16,7 @@ export class Game extends React.Component<GameProps> {
     public readonly game = new Phaser.Game({
         ...this.props.config,
         scene: [
-            scene0,
+            // scene0,
             scene1,
         ],
     });

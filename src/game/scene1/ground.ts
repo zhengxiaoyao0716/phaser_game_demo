@@ -17,6 +17,7 @@ export const isGround = (object: Phaser.GameObjects.GameObject): object is Phase
 export const preload = (scene: Phaser.Scene) => {
     const texture = mock.texture(scene);
     texture.shape('ground', { fill: { color: 0x00FF00 } }).rect(groundWidth, groundHeight);
+    texture.shape('wall', { fill: { color: 0x00FF00 } }).rect(groundHeight, groundWidth);
 };
 
 export const create = (scene: Phaser.Scene) => {
@@ -26,6 +27,17 @@ export const create = (scene: Phaser.Scene) => {
         ground.setImmovable(true);
         return ground;
     }));
+
+    // grounds.push(...new Array(3).fill(null).map((_, index) => {
+    //     const wall = groundGroup.create(index * 300, 1080 - 300 -50, 'wall') as Phaser.Physics.Arcade.Sprite;
+    //     wall.setImmovable(true);
+    //     grounds.push(wall);
+    //     return wall;
+    // }));
+
+    const wall = groundGroup.create(300, 1080 - 300 - 50, 'wall') as Phaser.Physics.Arcade.Sprite;
+    wall.setImmovable(true);
+    grounds.push(wall);
 };
 
 export const update = (scene: Phaser.Scene, time: number, delta: number) => {
