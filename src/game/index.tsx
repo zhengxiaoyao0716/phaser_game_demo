@@ -27,6 +27,12 @@ export class Game extends React.Component<GameProps, GameState> {
         scale: {
             fullscreenTarget: 'game',
         },
+        physics: {
+          default: 'arcade',
+          arcade: {
+            'gravity.y': 0,
+          },
+        },
         ...this.props.config,
         scene: [
             scene1,
