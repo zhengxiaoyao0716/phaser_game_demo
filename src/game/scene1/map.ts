@@ -1,5 +1,6 @@
 import * as mock from '../util/mock';
 import asset from './asset';
+// import { gameConfig } from 'src/App';
 
 const tileWidth = 64;
 const tileHeight = 64;
@@ -44,7 +45,6 @@ export const preload = (scene: Phaser.Scene) => {
     });
 
     const texture = mock.texture(scene);
-    texture.shape('bg', { fill: { color: 0xCCCCCC } }).rect(1920, 1080);
     texture.shape('ground', { fill: { color: 0x00FF00 } }).rect(tileWidth, tileHeight);
     texture.shape('wall', { fill: { color: 0x00FF00 } }).rect(tileWidth, tileHeight);
     texture.shape('rope', { fill: { color: 0xFFFF00 } }).rect(tileWidth, tileHeight);
@@ -53,13 +53,10 @@ export const preload = (scene: Phaser.Scene) => {
 };
 
 export const create = (scene: Phaser.Scene) => {
-    scene.add.image(1920 / 2, 1080 / 2, 'bg');
-
-    const tilemap = scene.make.tilemap({ key: 'tilemap' });
-    const tileset = tilemap.addTilesetImage('tileset0');
-    const groundLayer = tilemap.createDynamicLayer(0, tileset, 0, 0);
-    scene.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
-    scene.cameras.main.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
+    scene.physics.add.image(5319 / 2, 3618 / 2, 'web');
+    scene.physics.world.setBounds(0, 0, 5319, 3618);
+    scene.cameras.main.setBounds(0, 0, 5319, 3618);
+    const savepoints: Array<[number, number]> = [[920, 2800]];
 
     groundGroup = scene.physics.add.staticGroup();
     climbingGroup = scene.physics.add.staticGroup();
@@ -67,46 +64,101 @@ export const create = (scene: Phaser.Scene) => {
     scene.physics.add.collider(collideGroup, groundGroup);
     overlapGroup = scene.physics.add.group();
     scene.physics.add.collider(overlapGroup, groundGroup);
-    const savepoints: Array<[number, number]> = [];
 
-    const box = groundGroup.create(300, 700, 'box');
-    onInsideView.box = show(box);
-    onOutsideView.box = hide(box);
-
-    groundLayer.forEachTile((tile: Phaser.Tilemaps.Tile) => {
-        const properties = tile.properties as any;
-        const type = properties.type;
-        if (!type) return;
-        const x = tile.getCenterX();
-        const y = tile.getCenterY();
-        groundLayer.removeTileAt(tile.x, tile.y);
+    const texture = mock.texture(scene);
+    const positions: Array<[number, number, number, number, string]> = [
+        // 出生点附近
+        [800, 3100, 160, 1400, 'ground'],
+        [1105, 3046, 607, 60, 'ground'],
+        [1518, 3046, 217, 60, 'insideGround'],
+        [1921, 3046, 590, 60, 'ground'],
+        [1727, 2604, 200, 800, 'ground'],
+        // 钢琴平台
+        [2137, 3537, 2673, 102, 'ground'],
+        [3980, 3476, 1000, 60, 'ground'],
+        [3776, 3280, 272, 301, 'moshuiping'],
+        [4452, 3196, 99, 500, 'ground'],
+        [4620, 2872, 234, 161, 'ground'],
+        [5023, 2420, 582, 1066, 'ground'],
+    ];
+    positions.forEach(([x, y, width, height, type], index) => {
+        const key = `road${index}`;
+        texture.shape(key, { fill: { color: 0x00FF00 } }).rect(width, height);
         switch (type) {
-            case 'ground':
-                const ground = groundGroup.create(x, y, 'ground');
+            case 'ground': {
+                const ground = groundGroup.create(x, y, key) as Phaser.Physics.Arcade.Sprite;
                 ground.setImmovable(true);
+                // ground.setVisible(false);
                 break;
-            case 'savepoint':
-                savepoints.push([x, y]);
+            }
+            case 'insideGround': {
+                const ground = collideGroup.create(x, y, key) as Phaser.Physics.Arcade.Sprite;
+                ground.setImmovable(true);
+                // ground.setVisible(false);
+                onInsideView.box = show(ground);
+                onOutsideView.box = hide(ground);
                 break;
-            case 'climbing':
-                climbingGroup.create(x, y, 'rope');
-                break;
-            case 'box':
-                const box = collideGroup.create(x, y, 'box') as Phaser.Physics.Arcade.Sprite;
+            }
+            case 'moshuiping': {
+                const box = collideGroup.create(x, y, key) as Phaser.Physics.Arcade.Sprite;
                 box.setDragX(1000);
                 box.setGravityY(1000);
                 box.type = 'box';
                 break;
-            case 'action':
-                const action = overlapGroup.create(x, y, 'action');
-                action.setGravityY(1000);
-                action.type = properties.type;
-                action.name = properties.name;
-                action.setData('tip', 'properties.tip');
-                action.setData('pressedTip', 'properties.pressedTip');
-                break;
+            }
         }
     });
+
+    // const tilemap = scene.make.tilemap({ key: 'tilemap' });
+    // const tileset = tilemap.addTilesetImage('tileset0');
+    // const groundLayer = tilemap.createDynamicLayer(0, tileset, 0, 0);
+    // scene.cameras.main.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
+
+    // groundGroup = scene.physics.add.staticGroup();
+    // climbingGroup = scene.physics.add.staticGroup();
+    // collideGroup = scene.physics.add.group();
+    // scene.physics.add.collider(collideGroup, groundGroup);
+    // overlapGroup = scene.physics.add.group();
+    // scene.physics.add.collider(overlapGroup, groundGroup);
+
+    // const box = groundGroup.create(300, 700, 'box');
+    // onInsideView.box = show(box);
+    // onOutsideView.box = hide(box);
+
+    // groundLayer.forEachTile((tile: Phaser.Tilemaps.Tile) => {
+    //     const properties = tile.properties as any;
+    //     const type = properties.type;
+    //     if (!type) return;
+    //     const x = tile.getCenterX();
+    //     const y = tile.getCenterY();
+    //     groundLayer.removeTileAt(tile.x, tile.y);
+    //     switch (type) {
+    //         case 'ground':
+    //             const ground = groundGroup.create(x, y, 'ground');
+    //             ground.setImmovable(true);
+    //             break;
+    //         case 'savepoint':
+    //             savepoints.push([x, y]);
+    //             break;
+    //         case 'climbing':
+    //             climbingGroup.create(x, y, 'rope');
+    //             break;
+    //         case 'box':
+    //             const box = collideGroup.create(x, y, 'box') as Phaser.Physics.Arcade.Sprite;
+    //             box.setDragX(1000);
+    //             box.setGravityY(1000);
+    //             box.type = 'box';
+    //             break;
+    //         case 'action':
+    //             const action = overlapGroup.create(x, y, 'action');
+    //             action.setGravityY(1000);
+    //             action.type = properties.type;
+    //             action.name = properties.name;
+    //             action.setData('tip', 'properties.tip');
+    //             action.setData('pressedTip', 'properties.pressedTip');
+    //             break;
+    //     }
+    // });
     return savepoints;
 };
 

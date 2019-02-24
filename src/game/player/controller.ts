@@ -43,7 +43,7 @@ class Controller extends BaseController {
     }
     public update(time: number, delta: number): void {
         const la = controller.axes('LA');
-        const moveSpeed = 60;
+        const moveSpeed = 100;
         const jumpSpeed = isScene1 ? 1000 : 400;
         const wallingJumpSpeed = 2000;
         const dump = 0.8;

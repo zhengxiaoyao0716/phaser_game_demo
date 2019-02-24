@@ -64,6 +64,7 @@ export const texture = (scene: Phaser.Scene) => ({
         frameKeys.forEach((frameKey, index) => {
             const frame = scene.textures.get(frameKey);
             const image = frame.getSourceImage();
+            document.body.appendChild(image as any);
             if (image instanceof Phaser.GameObjects.RenderTexture) {
                 // tslint:disable-next-line: no-console
                 console.error(new Error(`failed to draw image '${frameKey}' into sprite sheet: '${key}'.`));
@@ -74,7 +75,7 @@ export const texture = (scene: Phaser.Scene) => ({
 
         const sheet = new Image();
         sheet.src = canvas.toDataURL('image/png');
-        // document.body.append(sheet);
+        document.body.append(sheet);
 
         return await new Promise<HTMLImageElement>((resolve) => {
             const addSpriteSheet = () => {

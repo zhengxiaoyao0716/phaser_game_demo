@@ -3,6 +3,7 @@ import { create as createAmin } from './anim';
 import { create as createController, controller, frameStatus } from './controller';
 import savepoint, { savepointGroup, savedPosition } from './savepoint';
 import { toast } from '..';
+import asset from '../scene1/asset';
 
 export let player: Phaser.Physics.Arcade.Sprite;
 
@@ -26,28 +27,30 @@ export const preload = (scene: Phaser.Scene) => {
     const texture = mock.texture(scene);
 
     const images = [
-        ...['   \n■■■\n■ ■', ' ■ \n■■■\n■ ■', ' ■ \n■■■\n   '], // TOP
-        ...['■ ■\n■■■\n   ', '■ ■\n■■■\n ■ ', '   \n■■■\n ■ '], // Bottom
-        ...[' ■■\n ■ \n ■■', ' ■■\n■■ \n ■■', ' ■ \n■■ \n ■ '], // Left
-        ...['■■ \n ■ \n■■ ', '■■ \n ■■\n■■ ', ' ■ \n ■■\n ■ '], // right
-        ' ■ \n■■■\n ■ ', ' ■ \n■ ■\n ■ ', // Hang
-        ' ■ \n■■■\n ■ ', '■ ■\n ■ \n■ ■', // Boom
+        asset.player0, asset.player0, asset.player0, asset.player0,
+        asset.player0, asset.player0, asset.player0, asset.player0,
+        asset.player0, asset.player0,
+        asset.player0, asset.player0, asset.player0, asset.player0,
+        asset.player0, asset.player0, asset.player0, asset.player0,
+        asset.player0, asset.player0,
     ];
-    images.forEach((value, index) => {
-        texture.text(`player${index}`, value, { color: 0x99FFFF });
+    images.forEach((url, index) => {
+        texture.shape('player0', { fill: { color: 0xFF0000 } }).rect(125, 248);
+        // scene.load.image(`player${0}`, url);
     });
-    sheetPromsie = texture.sheet('player', 256, 256, images.map((_, index) => `player${index}`), 32, 64);
+    sheetPromsie = texture.sheet('player', 1000, 1136, images.map((_, index) => `player${0}`), 125, 284);
 
     savepoint.preload(scene);
 };
 
-export const create = async (scene: Phaser.Scene, x: number, y: number, savepoints: Array<[number, number, boolean?]> = []) => {
+export const create = async (scene: Phaser.Scene, scale: number, x: number, y: number, savepoints: Array<[number, number, boolean?]> = []) => {
     savepoint.create(scene, [[x, y, false], ...savepoints]);
 
     await sheetPromsie;
     player = scene.physics.add.sprite(x, y, 'player');
     player.setCollideWorldBounds(true);
     player.setGravityY(3000);
+    player.setScale(scale);
     (player.body as Phaser.Physics.Arcade.Body).onWorldBounds = true;
     player.body.world.on('worldbounds', onPlayerWorldBounds);
 

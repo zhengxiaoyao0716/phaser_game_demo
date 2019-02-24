@@ -18,7 +18,7 @@ export async function create(this: Phaser.Scene) {
     this.add.image(gameConfig.width / 2, gameConfig.height / 2, 'background');
 
     createPlatform(this);
-    await createPlayer(this, 0, 0);
+    await createPlayer(this, 0.2, 0, 0);
     player.setGravityY(0);
     player.setActive(false);
     player.setVisible(false);
