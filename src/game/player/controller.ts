@@ -12,6 +12,8 @@ export let controller: Controller;
 export let frameStatus: {
     savepoint?: number, // 附近的保存点，-1代表不在附近
     climbing?: boolean, // 在可攀爬处？
+
+    createMsgPlatform?: boolean;    // 创建平台
 } = new Proxy({}, {
     get: (target, name, _receiver) => {
         return target[name] && target[name].value;
@@ -40,7 +42,7 @@ class Controller extends BaseController {
     public update(time: number, delta: number): void {
         const la = controller.axes('LA');
         const moveSpeed = 60;
-        const jumpSpeed = isScene1 ? 1000 : 400;
+        const jumpSpeed = isScene1 ? 1000 : 600;
         const wallingJumpSpeed = 2000;
         const dump = 0.8;
         let speedX = player.body.velocity.x;
