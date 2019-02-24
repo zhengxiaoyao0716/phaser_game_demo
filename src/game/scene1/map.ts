@@ -1,13 +1,13 @@
 import * as mock from '../util/mock';
 import asset from './asset';
 
-export let groundLayer: Phaser.Tilemaps.DynamicTilemapLayer;
-
 const tileWidth = 64;
 const tileHeight = 64;
 
 export let groundGroup: Phaser.Physics.Arcade.StaticGroup;
 export let climbingGroup: Phaser.Physics.Arcade.StaticGroup;
+export let collideGroup: Phaser.Physics.Arcade.Group;
+export let overlapGroup: Phaser.Physics.Arcade.Group;
 
 export const preload = (scene: Phaser.Scene) => {
     scene.load.tilemapTiledJSON('tilemap', require('./asset/tilemap.json.tile'));
@@ -20,23 +20,32 @@ export const preload = (scene: Phaser.Scene) => {
     texture.shape('ground', { fill: { color: 0x00FF00 } }).rect(tileWidth, tileHeight);
     texture.shape('wall', { fill: { color: 0x00FF00 } }).rect(tileWidth, tileHeight);
     texture.shape('rope', { fill: { color: 0xFFFF00 } }).rect(tileWidth, tileHeight);
+    texture.shape('box', { fill: { color: 0xFF00FF } }).rect(tileWidth, tileHeight);
+    texture.shape('action', { fill: { color: 0xFF00FF } }).trian(tileWidth, tileHeight, tileWidth / 2);
 };
 
 export const create = (scene: Phaser.Scene) => {
+    scene.add.image(1920 / 2, 1080 / 2, 'bg');
+
     const tilemap = scene.make.tilemap({ key: 'tilemap' });
     const tileset = tilemap.addTilesetImage('tileset0');
-    groundLayer = tilemap.createDynamicLayer(0, tileset, 0, 0);
+    const groundLayer = tilemap.createDynamicLayer(0, tileset, 0, 0);
     scene.physics.world.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
     scene.cameras.main.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
 
     groundGroup = scene.physics.add.staticGroup();
     climbingGroup = scene.physics.add.staticGroup();
+    collideGroup = scene.physics.add.group();
+    scene.physics.add.collider(collideGroup, groundGroup);
+    overlapGroup = scene.physics.add.group();
+    scene.physics.add.collider(overlapGroup, groundGroup);
     const savepoints: Array<[number, number]> = [];
 
-    scene.add.image(1920 / 2, 1080 / 2, 'bg');
+    groundGroup.create(100, 1600, 'box');
 
     groundLayer.forEachTile((tile: Phaser.Tilemaps.Tile) => {
-        const type: 'ground' | 'savepoint' | 'climbing' = (tile.properties as any).type;
+        const properties = tile.properties as any;
+        const type = properties.type;
         if (!type) return;
         const x = tile.getCenterX();
         const y = tile.getCenterY();
@@ -51,6 +60,20 @@ export const create = (scene: Phaser.Scene) => {
                 break;
             case 'climbing':
                 climbingGroup.create(x, y, 'rope');
+                break;
+            case 'box':
+                const box = collideGroup.create(x, y, 'box') as Phaser.Physics.Arcade.Sprite;
+                box.setDragX(1000);
+                box.setGravityY(1000);
+                box.type = 'box';
+                break;
+            case 'action':
+                const action = overlapGroup.create(x, y, 'action');
+                action.setGravityY(1000);
+                action.type = properties.type;
+                action.name = properties.name;
+                action.setData('tip', 'properties.tip');
+                action.setData('pressedTip', 'properties.pressedTip');
                 break;
         }
     });

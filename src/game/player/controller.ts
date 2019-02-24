@@ -11,6 +11,7 @@ export let controller: Controller;
 export let frameStatus: {
     savepoint?: number, // 附近的保存点，-1代表不在附近
     climbing?: boolean, // 在可攀爬处？
+    overlap?: Phaser.Physics.Arcade.Sprite, // （scene1里）重叠的物体
 } = new Proxy({}, {
     get: (target, name, _receiver) => {
         return target[name] && target[name].value;
@@ -35,6 +36,7 @@ const dump = 0.8;
 
 class Controller extends BaseController {
     public game: Phaser.Game;
+    private enable = true;
     constructor(game: Phaser.Game, config?: ControllerConfig) {
         super(config);
         this.game = game;
@@ -62,6 +64,8 @@ class Controller extends BaseController {
         player.setVelocityX(speedX);
 
         if (this.updateAction(time, delta)) { // 如果有交互那么拦截跳跃
+            this.enable = false;
+            setTimeout(() => this.enable = true, 500); // 关键动作降频操作
             return;
         }
         const buttonA = controller.key('A');
@@ -102,9 +106,16 @@ class Controller extends BaseController {
             }
             return true;
         }
+        if (!this.enable) return;
         if (frameStatus.savepoint && frameStatus.savepoint !== status.savedpoint && pressedA) {
             status.savedpoint = frameStatus.savepoint;
             toast.center('游戏进度已保存', 1000);
+            return true;
+        }
+        if (frameStatus.overlap && pressedA) {
+            const pressedTip = frameStatus.overlap.getData('pressedTip');
+            pressedTip && toast.center(pressedTip, 1000);
+            frameStatus.overlap.setActive(false);
             return true;
         }
     }
