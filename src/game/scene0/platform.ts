@@ -55,8 +55,8 @@ const msg = [
     ['r', false, false, asset[13]],
     ['l', false, false, asset[14]],
     ['r', false, false, asset[15]],
-    ['l', false, true, asset[16]],
-    ['r', false, false, asset[17]],
+    ['l', false, false, asset[16]],
+    ['r', false, true, asset[17]],
     ['l', false, false, asset[18]],
 ];
 let msgIndex = 0;
