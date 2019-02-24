@@ -13,11 +13,13 @@ export const status: {
     jumping: boolean,
     walling: boolean,
     savedpoint: number, // 最后一次保存的位置
+    canChangeView: boolean, // 能否切换表里世界视点
 } = {
     life: 'alive',
     jumping: true,
     walling: false,
     savedpoint: 0,
+    canChangeView: false,
 };
 
 export const preload = (scene: Phaser.Scene) => {

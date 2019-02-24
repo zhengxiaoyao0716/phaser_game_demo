@@ -2,6 +2,7 @@ import BaseController, { ControllerConfig } from 'src/controller';
 import { player, status } from '../player';
 import { playerHang, playerDown, playerUp } from './anim';
 import { toast } from '..';
+import { onChangeView } from '../scene1/map';
 
 export let controller: Controller;
 
@@ -117,6 +118,14 @@ class Controller extends BaseController {
             pressedTip && toast.center(pressedTip, 1000);
             frameStatus.overlap.setActive(false);
             return true;
+        }
+        if (status.canChangeView) {
+            const pressedB = this.key('B');
+            if (pressedB) {
+                status.canChangeView = false;
+                setTimeout(() => status.canChangeView = true, 3000);
+                onChangeView();
+            }
         }
     }
 }

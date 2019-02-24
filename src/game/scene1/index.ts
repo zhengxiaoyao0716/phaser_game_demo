@@ -1,4 +1,4 @@
-import { preload as preloadPlayer, create as createPlayer, update as updatePlayer, player } from '../player';
+import { preload as preloadPlayer, create as createPlayer, update as updatePlayer, player, status } from '../player';
 import { preload as preloadGround, create as createGround, groundGroup, climbingGroup, collideGroup, overlapGroup } from './map';
 import { frameStatus } from '../player/controller';
 import { toast } from '..';
@@ -27,6 +27,7 @@ export async function create(this: Phaser.Scene) {
             tip && toast.center(tip, 1000);
         }
     });
+    status.canChangeView = true;
 }
 
 export function update(this: Phaser.Scene, time: number, delta: number) {

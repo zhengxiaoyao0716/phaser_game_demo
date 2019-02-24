@@ -4,6 +4,34 @@ import asset from './asset';
 const tileWidth = 64;
 const tileHeight = 64;
 
+type onViewActive = () => void;
+let isInsideView = true;
+const onInsideView: { [key: string]: onViewActive } = {
+};
+const onOutsideView: { [key: string]: onViewActive } = {
+};
+export const onChangeView = () => {
+    isInsideView = !isInsideView;
+    Object.values(isInsideView ? onInsideView : onOutsideView).forEach(fn => fn());
+};
+const hide = (object: Phaser.Physics.Arcade.Sprite) => () => {
+    if (!object.active) {
+        object.setData('frozen', true);
+        return;
+    }
+    object.body.checkCollision.none = true;
+    object.setActive(false);
+    object.setVisible(false);
+};
+const show = (object: Phaser.Physics.Arcade.Sprite) => () => {
+    if (object.getData('frozen')) {
+        return;
+    }
+    object.body.checkCollision.none = false;
+    object.setActive(true);
+    object.setVisible(true);
+};
+
 export let groundGroup: Phaser.Physics.Arcade.StaticGroup;
 export let climbingGroup: Phaser.Physics.Arcade.StaticGroup;
 export let collideGroup: Phaser.Physics.Arcade.Group;
@@ -41,7 +69,9 @@ export const create = (scene: Phaser.Scene) => {
     scene.physics.add.collider(overlapGroup, groundGroup);
     const savepoints: Array<[number, number]> = [];
 
-    groundGroup.create(100, 1600, 'box');
+    const box = groundGroup.create(300, 700, 'box');
+    onInsideView.box = show(box);
+    onOutsideView.box = hide(box);
 
     groundLayer.forEachTile((tile: Phaser.Tilemaps.Tile) => {
         const properties = tile.properties as any;
