@@ -28,13 +28,14 @@ let playerX : number;
 let playerY : number;
 
 export function initPlayer(scene:Phaser.Scene) {
+    // 出生点
     playerX = gameConfig.width / 2;
-    playerY = 200;
-    
+    playerY = 150;
+
     player.setX(playerX).setY(playerY);
     player.setActive(true);
     player.setVisible(true);
-    player.setGravityY(500);
+    player.setGravityY(1000);
     scene.physics.add.collider(player, platforms);
     scene.physics.add.collider(player, borders);
     scene.physics.add.collider(player, deadlineZone, onDie);

@@ -15,6 +15,8 @@ let mainImg : Phaser.GameObjects.Image;
 let wechat : Phaser.GameObjects.Image;
 let wechatBorder : Phaser.GameObjects.Image;
 export let start = false;
+let canStart = false;
+let end = false;
 
 const platformSpriteType = 'platformSprite';
 export const isPlatform = (object: Phaser.GameObjects.GameObject): object is Phaser.Physics.Arcade.Sprite => {
@@ -70,6 +72,13 @@ export const create = (scene: Phaser.Scene) => {
     
     // create left border and right border
     createBorder(scene);
+
+    const vv = document.getElementById('vv') as HTMLVideoElement;
+    vv.addEventListener('ended', ()=>{
+        // 删除开场动画，进入游戏
+        vv.remove();
+        canStart = true;
+    });
 };
 
 const createBorder = (scene: Phaser.Scene) => {
@@ -97,6 +106,7 @@ const createBorder = (scene: Phaser.Scene) => {
 
     deadlineZone = scene.physics.add.staticGroup();
     deadlineZone.create(gameConfig.width / 2, deadlineY, deadline, undefined, false, true);
+    deadlineZone.create(gameConfig.width / 2, gameConfig.height, deadline, undefined, false, true);
     
     powerDeadlineZone = scene.physics.add.staticGroup();
     powerDeadlineZone.create(gameConfig.width / 2, 0, pDeadline, undefined, false, true);
@@ -104,7 +114,7 @@ const createBorder = (scene: Phaser.Scene) => {
 
 export const update = (scene: Phaser.Scene, time: number, delta: number) => {
     // 开场任意按键，开始游戏
-    if(!start && controller && controller.key('any')) {
+    if(canStart && !start && controller && controller.key('any')) {
         console.log(controller, player);
         start = true;
         mainImg.setVisible(false);
@@ -120,6 +130,10 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
     if(elapse(time) > 0){
         createMsg(scene, time);
     }
+
+    if(start && !end && elapse(time) > 3　&& msg.length === 0 &&　powerLeft === 0){
+        endGame(scene);
+    }
 };
 
 function startGame(scene: Phaser.Scene){
@@ -130,6 +144,12 @@ function startGame(scene: Phaser.Scene){
 
     scene.physics.add.overlap(player, power, collectPower);
     scene.physics.add.overlap(power, powerDeadlineZone, destroyPower);
+}
+
+function endGame(scene: Phaser.Scene){
+    end = true;
+    player.setVelocity(0, 0);
+    player.setGravity(0);
 }
 
 function reverseVelocity(platform: Phaser.Physics.Arcade.Sprite, border: Phaser.Physics.Arcade.Sprite){

@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as Phaser from 'phaser';
 import * as scene0 from './scene0';
 import * as scene1 from './scene1';
+import asset from './scene0/asset';
 import './index.css';
 
 interface GameProps {
@@ -56,6 +57,7 @@ export class Game extends React.Component<GameProps, GameState> {
         };
         return (<div id="Game" className="Game">
             <div id="container" />
+            <video id="vv" src={asset.start_mov} autoPlay={true}/>
             {this.state.toast.center && <div id="centerTip">{this.state.toast.center}</div>}
         </div>);
     }

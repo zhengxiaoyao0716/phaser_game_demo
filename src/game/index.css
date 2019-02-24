@@ -10,6 +10,14 @@
   max-height: 100%;
 }
 
+.Game>#vv {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  text-align: center;
+}
+
 .Game>#centerTip {
   position: absolute;
   width: 100vw;
