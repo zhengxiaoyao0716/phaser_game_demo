@@ -105,7 +105,7 @@ export default abstract class Controller {
             const gamepad = this._gamepad;
             return gamepad && gamepad.buttons[code].pressed;
         },
-        get _gamepad() { return navigator.getGamepads()[0]; },
+        get _gamepad() { return navigator.getGamepads && navigator.getGamepads()[0]; },
     };
 
     private readonly keymouse = {
@@ -154,7 +154,11 @@ export default abstract class Controller {
     private readonly onMouseDown = (event: MouseEvent) => {
         this.domElement.focus();
         if (!this.keymouse.pointerLocked) {
-            (this.domElement as any).requestPointerLock();
+            if ('requestPointerLock' in this.domElement) {
+                (this.domElement as any).requestPointerLock();
+            } else {
+                this.onPointerLockChange();
+            }
             return;
         }
 
@@ -171,7 +175,7 @@ export default abstract class Controller {
     }
     private readonly onMouseMove = (event: MouseEvent) => this.keymouse.mouseAxes = [event.movementX, event.movementY];
     private readonly onPointerLockChange = () => {
-        if ((document as any).pointerLockElement === this.domElement) {
+        if (!('requestPointerLock' in this.domElement as any) || (document as any).pointerLockElement === this.domElement) {
             this.keymouse.pointerLocked = true;
             this.onFocus(true);
             this.domElement.parentElement!.classList.add('pointer-locked');

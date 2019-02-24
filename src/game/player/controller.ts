@@ -11,20 +11,17 @@ export let controller: Controller;
  * 这个缓存状态会0.1s去抖动重置
  */
 export let frameStatus: {
-    savepoint?: number, // 附近的保存点，-1代表不在附近
-    climbing?: boolean, // 在可攀爬处？
-    overlap?: Phaser.Physics.Arcade.Sprite, // （scene1里）重叠的物体
-} = new Proxy({}, {
-    get: (target, name, _receiver) => {
-        return target[name] && target[name].value;
-    },
-    set: (target, name, value, _receiver) => {
-        target[name] && target[name].timeout && clearTimeout(target[name].timeout);
-        const timeout = setTimeout(() => target[name] = null, 100);
-        target[name] = { value, timeout };
-        return true;
-    },
-});
+    readonly savepoint?: number, // 附近的保存点，-1代表不在附近
+    readonly climbing?: boolean, // 在可攀爬处？
+    readonly overlap?: Phaser.Physics.Arcade.Sprite, // （scene1里）重叠的物体
+} = {};
+const frameStatusTimer: any = {};
+export const setFrameStatus = (key: keyof typeof frameStatus, value: any) => {
+    frameStatusTimer[name] && clearTimeout(frameStatusTimer[name]);
+    const timeout = setTimeout(() => Object.defineProperty(frameStatus, key, { get: () => null, configurable: true }), 100);
+    frameStatusTimer[name] = timeout;
+    Object.defineProperty(frameStatus, key, { get: () => value, configurable: true });
+};
 
 export const create = (game: Phaser.Game) => controller = new Controller(game, {
     domElement: game.domContainer,

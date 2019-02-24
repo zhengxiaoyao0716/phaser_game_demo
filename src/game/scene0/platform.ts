@@ -107,7 +107,7 @@ export const create = (scene: Phaser.Scene) => {
     vv.addEventListener('ended', () => {
         toast.center('');
         // 删除开场动画，进入游戏
-        vv.remove();
+        vv.parentNode && vv.parentNode.removeChild(vv);
         canStart = true;
         playBgm();
     });

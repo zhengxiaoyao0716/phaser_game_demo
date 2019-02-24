@@ -1,5 +1,5 @@
 import { create as createAmin } from './anim';
-import { create as createController, controller, frameStatus } from './controller';
+import { create as createController, controller, frameStatus, setFrameStatus } from './controller';
 import savepoint, { savepointGroup, savedPosition } from './savepoint';
 import { toast } from '..';
 import asset from '../scene1/asset';
@@ -65,7 +65,7 @@ const onPlayerWorldBounds = (body: Phaser.Physics.Arcade.Body, up: boolean, down
 
 const onSavepoint = (_player: Phaser.Physics.Arcade.Sprite, point: Phaser.GameObjects.GameObject) => {
     if (point.active) {
-        frameStatus.savepoint = point.getData('index');
+        setFrameStatus('savepoint', point.getData('index'));
         if (frameStatus.savepoint !== status.savedpoint) {
             toast.center('按【空格】/【A】键保存', 3000);
         }
