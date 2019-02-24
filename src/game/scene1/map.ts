@@ -38,8 +38,8 @@ const pianos = [
     asset.piano1, asset.piano2, asset.piano3, asset.piano4, asset.piano5,
 ];
 const pianoAudios: Phaser.Sound.BaseSound[] = [];
-export const pianoKeySeq = '1,3,5,3';
-export const pianoPlay: Array<1 | 2 | 3 | 4 | 5> = [];
+const pianoKeySeq = '1,3,5,3';
+let pianoPlay: Array<1 | 2 | 3 | 4 | 5> | null = [];
 
 export let groundGroup: Phaser.Physics.Arcade.StaticGroup;
 export let climbingGroup: Phaser.Physics.Arcade.StaticGroup;
@@ -99,7 +99,7 @@ export const create = (scene: Phaser.Scene) => {
         [2043, 3522, , , 'piano', { id: 4 }],
         [2192, 3522, , , 'piano', { id: 5 }],
         // 爬绳子
-        [4577, 2120, 50, 1346, 'climbing'],
+        [4577, 2118, 50, 1340, 'climbing'],
         // 二层平台
         [2836, 1981, 3799, 117, 'insideGround'],
     ];
@@ -147,6 +147,7 @@ export const create = (scene: Phaser.Scene) => {
                 button.name = `piano${id}`;
                 button.setData('play', () => {
                     pianoAudios[id - 1].play();
+                    if (pianoPlay == null) return; // 已解锁
                     pianoPlay.push(id);
                     if (pianoPlay.length > 4) pianoPlay.shift();
                     if (pianoPlay.toString() !== pianoKeySeq) return;
@@ -156,6 +157,7 @@ export const create = (scene: Phaser.Scene) => {
                         pianoPass.setVisible(false);
                         pianoPass.setActive(false);
                         pianoPass.body.checkCollision.none = true;
+                        pianoPlay = null;
                     });
                 });
                 break;
