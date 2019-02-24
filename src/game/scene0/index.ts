@@ -1,5 +1,5 @@
 import * as mock from '../util/mock';
-import { preload as preloadPlatform, create as createPlatform, update as updatePlatform, platforms, borders, deadlineZone } from './platform';
+import { preload as preloadPlatform, create as createPlatform, update as updatePlatform, platforms, borders, deadlineZone, revive } from './platform';
 import { preload as preloadPlayer, create as createPlayer, update as updatePlayer, player } from '../player';
 import { gameConfig } from 'src/App';
 
@@ -24,8 +24,14 @@ export async function create(this: Phaser.Scene) {
     player.setVisible(false);
 }
 
+let playerX : number;
+let playerY : number;
+
 export function initPlayer(scene:Phaser.Scene) {
-    player.setX(gameConfig.width / 2).setY(400);
+    playerX = gameConfig.width / 2;
+    playerY = 200;
+    
+    player.setX(playerX).setY(playerY);
     player.setActive(true);
     player.setVisible(true);
     player.setGravityY(500);
@@ -35,7 +41,9 @@ export function initPlayer(scene:Phaser.Scene) {
 }
 
 function onDie(player: Phaser.Physics.Arcade.Sprite){
-    // todo
+    player.setX(playerX).setY(playerY);
+    player.setVelocityY(0);
+    revive();
 }
 
 export function update(this: Phaser.Scene, time: number, delta: number) {
