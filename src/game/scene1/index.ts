@@ -15,6 +15,7 @@ export async function create(this: Phaser.Scene) {
     const video = document.querySelector('#vv');
     video && video.remove();
     isScene1 = true;
+
     const [birth, ...savepoints] = createGround(this);
     await createPlayer(this, 1.0, birth[0], birth[1], savepoints);
     this.cameras.main.startFollow(player);

@@ -1,6 +1,6 @@
 import BaseController, { ControllerConfig } from 'src/controller';
 import { player, status } from '../player';
-import { playerHang, playerDown, playerUp } from './anim';
+import { playerIdle, playerDown, playerUp, playerLeft, playerRight } from './anim';
 import { toast } from '..';
 import { onChangeView } from '../scene1/map';
 import { isScene1 } from '../scene1';
@@ -51,7 +51,7 @@ class Controller extends BaseController {
 
         if (la[0] > -EPSILON && la[0] < EPSILON) {
             player.setVelocityX(0);
-            status.jumping || playerHang(); // 非跳跃中播放休息动画
+            status.jumping || playerIdle(); // 非跳跃中播放休息动画
         } else {
             if (player.body.velocity.y >= 0 || !status.walling) {
                 speedX = speedX + la[0] * moveSpeed;
@@ -60,7 +60,7 @@ class Controller extends BaseController {
             if (status.jumping) {
                 player.body.velocity.y < 0 ? playerUp() : playerDown();
             } else { // 非跳跃中播放行走动画
-                player.anims.play(la[0] < 0 ? 'playerLeft' : 'playerRight', true);
+                la[0] < 0 ? playerLeft() : playerRight();
             }
         }
         speedX = speedX * dump;
@@ -116,6 +116,12 @@ class Controller extends BaseController {
             return true;
         }
         if (frameStatus.overlap && pressedA) {
+            if (frameStatus.overlap.type === 'pianoAction') {
+                const play = frameStatus.overlap.getData('play');
+                console.log(play);
+                play && play();
+                return;
+            }
             const pressedTip = frameStatus.overlap.getData('pressedTip');
             pressedTip && toast.center(pressedTip, 1000);
             frameStatus.overlap.setActive(false);

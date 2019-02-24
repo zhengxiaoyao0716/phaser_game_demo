@@ -1,4 +1,3 @@
-import * as mock from '../util/mock';
 import { create as createAmin } from './anim';
 import { create as createController, controller, frameStatus } from './controller';
 import savepoint, { savepointGroup, savedPosition } from './savepoint';
@@ -6,8 +5,6 @@ import { toast } from '..';
 import asset from '../scene1/asset';
 
 export let player: Phaser.Physics.Arcade.Sprite;
-
-let sheetPromsie: Promise<HTMLImageElement>; // 雪碧图加载锁
 
 export const status: {
     life: 'alive' | 'boom',
@@ -24,21 +21,8 @@ export const status: {
 };
 
 export const preload = (scene: Phaser.Scene) => {
-    const texture = mock.texture(scene);
-
-    const images = [
-        asset.player0, asset.player0, asset.player0, asset.player0,
-        asset.player0, asset.player0, asset.player0, asset.player0,
-        asset.player0, asset.player0,
-        asset.player0, asset.player0, asset.player0, asset.player0,
-        asset.player0, asset.player0, asset.player0, asset.player0,
-        asset.player0, asset.player0,
-    ];
-    images.forEach((url, index) => {
-        texture.shape('player0', { fill: { color: 0xFF0000 } }).rect(125, 248);
-        // scene.load.image(`player${0}`, url);
-    });
-    sheetPromsie = texture.sheet('player', 1000, 1136, images.map((_, index) => `player${0}`), 125, 284);
+    scene.load.spritesheet('playerInside', asset.playersheetInside, { frameWidth: 170, frameHeight: 284 });
+    scene.load.spritesheet('playerOutside', asset.playersheetOutside, { frameWidth: 170, frameHeight: 284 });
 
     savepoint.preload(scene);
 };
@@ -46,8 +30,7 @@ export const preload = (scene: Phaser.Scene) => {
 export const create = async (scene: Phaser.Scene, scale: number, x: number, y: number, savepoints: Array<[number, number, boolean?]> = []) => {
     savepoint.create(scene, [[x, y, false], ...savepoints]);
 
-    await sheetPromsie;
-    player = scene.physics.add.sprite(x, y, 'player');
+    player = scene.physics.add.sprite(x, y, 'playerOutside');
     player.setCollideWorldBounds(true);
     player.setGravityY(3000);
     player.setScale(scale);
