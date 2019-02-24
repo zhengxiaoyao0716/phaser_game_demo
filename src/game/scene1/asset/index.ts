@@ -14,4 +14,5 @@ export default {
     piano3: require('./piano3.mp3'),
     piano4: require('./piano4.mp3'),
     piano5: require('./piano5.mp3'),
+    pianoPass: require('./piano_pass.jpg'),
 };

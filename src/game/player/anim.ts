@@ -24,7 +24,7 @@ export const create = (scene: Phaser.Scene) => {
     });
     scene.anims.create({
         key: 'playerUpRight_I',
-        frames: scene.anims.generateFrameNumbers('playerInside', { start: 6, end: 7 }),
+        frames: scene.anims.generateFrameNumbers('playerInside', { start: 8, end: 9 }),
         frameRate: 10,
         repeat: -1,
         yoyo: false,

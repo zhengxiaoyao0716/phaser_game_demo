@@ -40,6 +40,8 @@ const pianos = [
     asset.piano1, asset.piano2, asset.piano3, asset.piano4, asset.piano5,
 ];
 const pianoAudios: Phaser.Sound.BaseSound[] = [];
+export const pianoKeySeq = '1,3,5,3';
+export const pianoPlay: Array<1 | 2 | 3 | 4 | 5> = [];
 
 export let groundGroup: Phaser.Physics.Arcade.StaticGroup;
 export let climbingGroup: Phaser.Physics.Arcade.StaticGroup;
@@ -70,7 +72,6 @@ export const create = (scene: Phaser.Scene) => {
 
     pianoAudios.push(...pianos.map((url, index) => scene.sound.add(`piano${1 + index}`)));
 
-
     groundGroup = scene.physics.add.staticGroup();
     climbingGroup = scene.physics.add.staticGroup();
     collideGroup = scene.physics.add.group();
@@ -94,11 +95,11 @@ export const create = (scene: Phaser.Scene) => {
         [4620, 2872, 234, 161, 'ground'],
         [5023, 2420, 582, 1066, 'ground'],
         // 钢琴按键
-        [1592, 3522, , , 'piano', '1'],
-        [1736, 3522, , , 'piano', '2'],
-        [1893, 3527, , , 'piano', '3'],
-        [2043, 3528, , , 'piano', '4'],
-        [2192, 3531, , , 'piano', '5'],
+        [1592, 3522, , , 'piano', { id: 1 }],
+        [1736, 3522, , , 'piano', { id: 2 }],
+        [1893, 3522, , , 'piano', { id: 3 }],
+        [2043, 3522, , , 'piano', { id: 4 }],
+        [2192, 3522, , , 'piano', { id: 5 }],
     ];
     positions.forEach(([x, y, width, height, type, extras], index) => {
         const key = `road${index}`;
@@ -107,13 +108,13 @@ export const create = (scene: Phaser.Scene) => {
             case 'ground': {
                 const ground = groundGroup.create(x, y, key) as Phaser.Physics.Arcade.Sprite;
                 ground.setImmovable(true);
-                // ground.setVisible(false);
+                ground.setVisible(false);
                 break;
             }
             case 'insideGround': {
                 const ground = collideGroup.create(x, y, key) as Phaser.Physics.Arcade.Sprite;
                 ground.setImmovable(true);
-                // ground.setVisible(false);
+                ground.setVisible(false);
                 onInsideView.box = hide(ground);
                 onOutsideView.box = show(ground);
                 break;
@@ -126,11 +127,24 @@ export const create = (scene: Phaser.Scene) => {
                 break;
             }
             case 'piano': {
-                const index = (extras as any).index;
-                const piano = overlapGroup.create(x, y, `button${1 + index}`) as Phaser.Physics.Arcade.Sprite;
-                piano.type = 'pianoAction';
-                piano.name = `piano${1 + index}`;
-                piano.setData('play', () => pianoAudios[index].play());
+                const id = (extras as any).id;
+                const button = overlapGroup.create(x, y, `button${id}`) as Phaser.Physics.Arcade.Sprite;
+                button.setVisible(false);
+                button.type = 'pianoAction';
+                button.name = `piano${id}`;
+                button.setData('play', () => {
+                    pianoAudios[id - 1].play();
+                    pianoPlay.push(id);
+                    if (pianoPlay.length > 4) pianoPlay.shift();
+                    if (pianoPlay.toString() !== pianoKeySeq) return;
+                    const pianoPass = overlapGroup.create(2400, 3100, 'pianoPass') as Phaser.Physics.Arcade.Sprite;
+                    pianoPass.setGravityY(500);
+                    scene.physics.add.overlap(pianoPass, player, () => {
+                        pianoPass.setVisible(false);
+                        pianoPass.setActive(false);
+                        pianoPass.body.checkCollision.none = true;
+                    });
+                });
                 break;
             }
         }
