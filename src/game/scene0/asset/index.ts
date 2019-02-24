@@ -4,6 +4,7 @@ export default {
     wechat_border: require('./wechat_border.png'),
     power: require('./power.png'),
     start_mov: require('./start.mp4'),
+    bg: require('./bg.png'),
     1: require('./1.png'),
     2: require('./2.png'),
     3: require('./3.png'),

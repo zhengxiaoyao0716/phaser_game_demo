@@ -6,8 +6,6 @@ import asset from './scene0/asset';
 import './index.css';
 // import test from './scene1/test';
 
-export let canStart = false;
-
 interface GameProps {
     config: GameConfig;
 }
@@ -57,22 +55,6 @@ export class Game extends React.Component<GameProps, GameState> {
         };
     }
 
-    public componentDidMount() {
-        console.log('m');
-        const vv = document.getElementById('vv') as HTMLVideoElement;
-        vv.addEventListener('canplay', ()=>{
-            // 开始播放
-            vv.play();
-            console.log('p');
-        });
-        vv.addEventListener('ended', ()=>{
-            // 删除开场动画，进入游戏
-            vv.remove();
-            canStart = true;
-            console.log('e');
-        });
-    }
-
     public componentWillUnmount() {
         this.game.destroy(true);
     }
@@ -83,7 +65,7 @@ export class Game extends React.Component<GameProps, GameState> {
         };
         return (<div id="Game" className="Game">
             <div id="container" />
-            <video id="vv" src={asset.start_mov}/>
+            <video id="vv" src={asset.start_mov} autoPlay={true}/>
             {this.state.toast.center && <div id="centerTip">{this.state.toast.center}</div>}
         </div>);
     }

@@ -4,7 +4,6 @@ import asset from './asset';
 import { controller, frameStatus } from '../player/controller';
 import { initPlayer } from '.';
 import { player } from '../player';
-import {canStart} from '../index';
 
 export let platforms: Phaser.Physics.Arcade.Group;
 const platformsSprite = new Array<Phaser.Physics.Arcade.Sprite>();
@@ -17,8 +16,12 @@ const powerSprite = new Array<Phaser.Physics.Arcade.Sprite>();
 let mainImg : Phaser.GameObjects.Image;
 let wechat : Phaser.GameObjects.Image;
 let wechatBorder : Phaser.GameObjects.Image;
+let bg : Phaser.GameObjects.Image;
+let canStart = false;
+let starting = false;
 export let start = false;
 let end = false;
+let lastMsg: number;
 
 const platformSpriteType = 'platformSprite';
 export const isPlatform = (object: Phaser.GameObjects.GameObject): object is Phaser.Physics.Arcade.Sprite => {
@@ -61,12 +64,15 @@ export const preload = (scene: Phaser.Scene) => {
     scene.load.image('main', asset.main);
     scene.load.image('power', asset.power);
     scene.load.image('wechat_border', asset.wechat_border);
+    scene.load.image('bg', asset.bg);
 };
 
 export const create = (scene: Phaser.Scene) => {
+    bg = scene.add.image(gameConfig.width / 2, gameConfig.height / 2, 'bg');
+    bg.setVisible(false);
+    mainImg = scene.add.image(gameConfig.width / 2, gameConfig.height / 2, 'main');
     wechat = scene.add.image(gameConfig.width / 2, gameConfig.height / 2, 'wechat');
     wechat.setVisible(false);
-    mainImg = scene.add.image(gameConfig.width / 2, gameConfig.height / 2, 'main');
 
     platforms = scene.physics.add.group();
 
@@ -74,6 +80,20 @@ export const create = (scene: Phaser.Scene) => {
     
     // create left border and right border
     createBorder(scene);
+
+    const vv = document.getElementById('vv') as HTMLVideoElement;
+    vv.addEventListener('canplaythrough', ()=>{
+        vv.addEventListener('keypress', () => {
+            // 开始播放
+            vv.play();
+        });
+    });
+    vv.addEventListener('ended', ()=>{
+        // 删除开场动画，进入游戏
+        vv.remove();
+        canStart = true;
+        console.log('e');
+    });
 };
 
 const createBorder = (scene: Phaser.Scene) => {
@@ -108,12 +128,21 @@ const createBorder = (scene: Phaser.Scene) => {
 };
 
 export const update = (scene: Phaser.Scene, time: number, delta: number) => {
+    if(!canStart && !start && controller && controller.key('any')) {
+        // 任意键，播放开场动画
+        (document.getElementById('vv') as HTMLVideoElement).play();
+    }
+
     // 开场任意按键，开始游戏
-    if(canStart && !start && controller && controller.key('any')) {
-        start = true;
+    if(canStart && !starting && !start && controller && controller.key('any')) {
+        starting = true;
         mainImg.setVisible(false);
         mainImg.destroy();
-        startGame(scene);
+
+        bg.setVisible(true);
+        bg.setScale(1.9);
+
+        wechatIter = 0;
     }
 
     if(timeStart === undefined && start){
@@ -122,18 +151,20 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
     }
     
     // 过场动画后，才开始创建场景
-    if(elapse(time) > 0){
-        createMsg(scene);
+    if(start){
+        createMsg(scene, time);
     }
 
     if(powerIndex >= 18){
         endGame(scene);
     }
 
-    iter();
+    iter(scene);
 };
 
 function startGame(scene: Phaser.Scene){
+    start = true;
+
     wechat.setVisible(true);
     initPlayer(scene);
     scene.physics.add.collider(platforms, power);
@@ -142,14 +173,24 @@ function startGame(scene: Phaser.Scene){
     scene.physics.add.overlap(player, power, collectPower);
     scene.physics.add.overlap(power, powerDeadlineZone, destroyPower);
 
-    wechat.setScale(0.8);
+    // wechat.setScale(0.8);
 }
 
 let wechatIter = -1;
-function iter() {
+function iter(scene: Phaser.Scene) {
     if(wechatIter >= 0){
-        wechatIter += 0.01;
-        wechat.setScale(0.8);
+        if(wechatIter >= 1){
+            startGame(scene);
+            wechatIter = -1;
+        } else {
+            wechatIter += 0.01;
+            const s = 1.98 + 5.29 * wechatIter;
+            const x = (gameConfig.width / 2) + 145.4 * wechatIter;
+            const y = (gameConfig.height / 2) - 130.86 * wechatIter;
+            bg.setScale(s);
+            bg.setX(x);
+            bg.setY(y);
+        }
     }
 }
 
@@ -186,35 +227,38 @@ export function revive(){
 }
 
 function clearAll(){
-        // 清空平台
-        platformsSprite.forEach( s => {
-            s.setVisible(false);
-            s.destroy();
-        });
-        platforms.clear();
-    
-        // 清空电池
-        powerSprite.forEach( s => {
-            s.setVisible(false);
-            s.destroy();
-        });
-        power.clear();
+    // 清空平台
+    platformsSprite.forEach( s => {
+        s.setVisible(false);
+        s.destroy();
+    });
+    platforms.clear();
+
+    // 清空电池
+    powerSprite.forEach( s => {
+        s.setVisible(false);
+        s.destroy();
+    });
+    power.clear();
 }
 
 // sec from start
+// @ts-ignore
 const elapse = (now: number) => {
     if(timeStart === undefined){
         return 0;
     }
-    return (now - timeStart) / 1000;
+    return now - timeStart;
 };
 
-function createMsg(scene: Phaser.Scene) {
+function createMsg(scene: Phaser.Scene, now: number) {
     if(end === true)   return;
     if(frameStatus === undefined)   return;
     if(frameStatus.createMsgPlatform !== true)  return;
-    if(msgIndex >= msg.length)    return; // no msg left
+    if(msgIndex >= msg.length)    return;   // no msg left
+    if((now - lastMsg) < 1800) return;
 
+    lastMsg = now;
     let msgInfo = msg[msgIndex];
 
     if(msgIndex >= 2){

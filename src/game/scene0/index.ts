@@ -1,4 +1,3 @@
-import * as mock from '../util/mock';
 import { preload as preloadPlatform, create as createPlatform, update as updatePlatform, platforms, borders, deadlineZone, revive } from './platform';
 import { preload as preloadPlayer, create as createPlayer, update as updatePlayer, player } from '../player';
 import { gameConfig } from 'src/App';
@@ -6,17 +5,11 @@ import { gameConfig } from 'src/App';
 export const key = 'Scene0';
 
 export function preload(this: Phaser.Scene) {
-    const texture = mock.texture(this);
-
-    texture.shape('background', { fill: { color: 0x66CCFF } }).rect(gameConfig.width, gameConfig.height);
-
     preloadPlatform(this);
     preloadPlayer(this);
 }
 
 export async function create(this: Phaser.Scene) {
-    this.add.image(gameConfig.width / 2, gameConfig.height / 2, 'background');
-
     createPlatform(this);
     await createPlayer(this, 0, 0);
     player.setGravityY(0);
