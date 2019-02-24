@@ -50,13 +50,13 @@ const msg = [
     ['l', false, false, asset[8]],
     ['r', false, false, asset[9]],
     ['l', false, false, asset[10]],
-    ['r', false, false, asset[11]],
+    ['r', false, true, asset[11]],
     ['l', false, false, asset[12]],
     ['r', false, false, asset[13]],
     ['l', false, false, asset[14]],
     ['r', false, false, asset[15]],
     ['l', false, false, asset[16]],
-    ['r', false, false, asset[17]],
+    ['r', false, true, asset[17]],
     ['l', false, false, asset[18]],
 ];
 let msgIndex = 0;
@@ -252,7 +252,7 @@ function down(scene: Phaser.Scene, now:number) {
             downTime = now;
         } else {
             // 拉远
-            dIter -= 0.07;
+            dIter -= 0.03;
 
             const s = 3.5 + 3.77 * dIter;
             const s2 = 0.48 + 0.52 * dIter;
@@ -297,7 +297,7 @@ export function revive() {
     clearAll();
     msgIndex = 0;
     powerIndex = 0;
-    createMsgPlatform = 0;
+    createMsgPlatform = 1;
 }
 
 function clearAll() {
