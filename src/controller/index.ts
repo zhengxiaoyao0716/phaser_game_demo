@@ -133,7 +133,7 @@ export default abstract class Controller {
         },
 
         buttons: { clickLeft: false, clickRight: false, any: false/*, keyCode: pressed */ },
-        pointerLocked: (document as any).pointerLockElement === this.domElement,
+        pointerLocked: !('pointerLockElement' in document) || (document as any).pointerLockElement === this.domElement,
     };
 
     private readonly keys = [...Object.keys({ ...this.gamepad.mapper }), 'any'].map(key => [

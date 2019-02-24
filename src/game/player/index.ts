@@ -3,6 +3,7 @@ import { create as createController, controller, frameStatus, setFrameStatus } f
 import savepoint, { savepointGroup, savedPosition } from './savepoint';
 import { toast } from '..';
 import asset from '../scene1/asset';
+import { onReviveScene1 } from '../scene1/map';
 
 export let player: Phaser.Physics.Arcade.Sprite;
 
@@ -65,6 +66,8 @@ export const playerDie = async () => {
     player.setPosition(x, y);
     player.setImmovable(false);
     status.life = 'alive';
+
+    onReviveScene1();
 };
 
 const onPlayerWorldBounds = (body: Phaser.Physics.Arcade.Body, up: boolean, down: boolean, left: boolean, ight: boolean) => {

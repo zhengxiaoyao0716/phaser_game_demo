@@ -34,6 +34,9 @@ const show = (object: Phaser.Physics.Arcade.Sprite) => () => {
     object.setVisible(visible);
 };
 
+const reviveHooks: { [key: string]: () => void } = {};
+export const onReviveScene1 = () => Object.values(reviveHooks).forEach(fn => fn());
+
 const pianos = [
     asset.piano1, asset.piano2, asset.piano3, asset.piano4, asset.piano5,
 ];
@@ -99,7 +102,7 @@ export const create = (scene: Phaser.Scene) => {
         [2043, 3522, , , 'piano', { id: 4 }],
         [2192, 3522, , , 'piano', { id: 5 }],
         // 爬绳子
-        [4577, 2118, 50, 1340, 'climbing'],
+        [4577, 2170, 50, 890, 'climbing'],
         // 二层平台
         [2836, 1981, 3799, 117, 'insideGround'],
     ];
@@ -137,6 +140,7 @@ export const create = (scene: Phaser.Scene) => {
                 box.type = 'box';
                 onInsideView[key] = hide(box);
                 onOutsideView[key] = show(box);
+                reviveHooks[key] = () => box.setPosition(x, y);
                 break;
             }
             case 'piano': {
@@ -165,7 +169,7 @@ export const create = (scene: Phaser.Scene) => {
             case 'climbing': {
                 const climbing = climbingGroup.create(x, y, key) as Phaser.Physics.Arcade.Sprite;
                 climbing.setImmovable(true);
-                climbing.setVisible(false);
+                // climbing.setVisible(false);
                 onInsideView[key] = hide(climbing);
                 onOutsideView[key] = show(climbing);
             }
