@@ -11,7 +11,7 @@ interface GameProps {
 
 const defaultState = {
     toast: {
-        center: '',
+        center: '按任意键开始游戏',
     },
 };
 type GameState = typeof defaultState;
@@ -19,6 +19,7 @@ type GameState = typeof defaultState;
 export let toast: {
     center: (message: string, timeout?: number) => () => void,
 };
+export let playBgm: () => void;
 
 export class Game extends React.Component<GameProps, GameState> {
     public state = defaultState;
@@ -29,15 +30,15 @@ export class Game extends React.Component<GameProps, GameState> {
             fullscreenTarget: 'game',
         },
         physics: {
-          default: 'arcade',
-          arcade: {
-            'gravity.y': 0,
-          },
+            default: 'arcade',
+            arcade: {
+                'gravity.y': 0,
+            },
         },
         ...this.props.config,
         scene: [
-            scene1,
             scene0,
+            scene1,
         ],
     });
 
@@ -61,10 +62,19 @@ export class Game extends React.Component<GameProps, GameState> {
         toast = {
             center: this.toast('center'),
         };
-        return (<div id="Game" className="Game">
-            <div id="container" />
-            <video id="vv" src={asset.start_mov} autoPlay={true}/>
-            {this.state.toast.center && <div id="centerTip">{this.state.toast.center}</div>}
-        </div>);
+        playBgm = () => {
+            const bgm = document.querySelector('audio#bgm');
+            if (bgm == null) return;
+            (bgm as HTMLAudioElement).play();
+            playBgm = () => null;
+        };
+        return (
+            <div id="game" className="Game">
+                <div id="container" />
+                <video id="vv" src={asset.start_mov} autoPlay={true} />
+                {this.state.toast.center && <div id="centerTip">{this.state.toast.center}</div>}
+                <audio id="bgm" src={require('./../asset/bgm.mp3')} autoPlay={true} loop={true} />
+            </div>
+        );
     }
 }

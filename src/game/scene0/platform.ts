@@ -5,6 +5,7 @@ import { controller } from '../player/controller';
 import { initPlayer } from '.';
 import { player } from '../player';
 import { key as scene1Key } from './../scene1';
+import { playBgm, toast } from '..';
 
 export let platforms: Phaser.Physics.Arcade.Group;
 const platformsSprite = new Array<Phaser.Physics.Arcade.Sprite>();
@@ -98,6 +99,7 @@ export const create = (scene: Phaser.Scene) => {
     const vv = document.getElementById('vv') as HTMLVideoElement;
     vv.addEventListener('canplaythrough', () => {
         vv.addEventListener('keypress', () => {
+            toast.center('');
             // 开始播放
             vv.play();
         });
@@ -106,6 +108,7 @@ export const create = (scene: Phaser.Scene) => {
         // 删除开场动画，进入游戏
         vv.remove();
         canStart = true;
+        playBgm();
     });
 };
 
