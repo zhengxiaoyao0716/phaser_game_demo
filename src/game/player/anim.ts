@@ -53,8 +53,8 @@ export const create = (scene: Phaser.Scene) => {
     scene.anims.create({
         key: 'playerBoom_I',
         frames: scene.anims.generateFrameNumbers('playerInside', { start: 20, end: 26 }),
-        frameRate: 5,
-        repeat: -1,
+        frameRate: 10,
+        repeat: 0,
     });
 
     scene.anims.create({
@@ -108,8 +108,8 @@ export const create = (scene: Phaser.Scene) => {
     scene.anims.create({
         key: 'playerBoom_O',
         frames: scene.anims.generateFrameNumbers('playerOutside', { start: 20, end: 26 }),
-        frameRate: 5,
-        repeat: -1,
+        frameRate: 10,
+        repeat: 0,
     });
 };
 
@@ -119,4 +119,4 @@ export const playerDown = () => player.anims.play(`playerDown${lOrR()}_${isInsid
 export const playerLeft = () => player.anims.play(`playerLeft_${isInsideView ? 'I' : 'O'}`, true);
 export const playerRight = () => player.anims.play(`playerRight_${isInsideView ? 'I' : 'O'}`, true);
 export const playerIdle = () => player.anims.play(`playerIdle_${isInsideView ? 'I' : 'O'}`, true);
-// export const playerBoom = () => player.anims.play('playerBoom', true);
+export const playerBoom = () => player.anims.play(`playerBoom_${isInsideView ? 'I' : 'O'}`, true);

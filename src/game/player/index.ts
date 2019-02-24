@@ -1,4 +1,4 @@
-import { create as createAmin } from './anim';
+import { create as createAmin, playerBoom, playerIdle } from './anim';
 import { create as createController, controller, frameStatus, setFrameStatus } from './controller';
 import savepoint, { savepointGroup, savedPosition } from './savepoint';
 import { toast } from '..';
@@ -53,14 +53,22 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
     }
 };
 
+export const playerDie = async () => {
+    if (status.life === 'boom') return;
+    status.life = 'boom';
+    player.body.stop();
+    player.setImmovable(true);
+    playerBoom();
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    playerIdle();
+    const [x, y] = savedPosition();
+    player.setPosition(x, y);
+    player.setImmovable(false);
+    status.life = 'alive';
+};
+
 const onPlayerWorldBounds = (body: Phaser.Physics.Arcade.Body, up: boolean, down: boolean, left: boolean, ight: boolean) => {
-    if (down) {
-        status.life = 'boom';
-        player.setVelocity(0, 0);
-        const [x, y] = savedPosition();
-        player.setPosition(x, y - 10);
-        setTimeout(() => status.life = 'alive', 500);
-    }
+    down && playerDie();
 };
 
 const onSavepoint = (_player: Phaser.Physics.Arcade.Sprite, point: Phaser.GameObjects.GameObject) => {

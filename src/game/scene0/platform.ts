@@ -3,7 +3,7 @@ import { gameConfig } from 'src/App';
 import asset from './asset';
 import { controller } from '../player/controller';
 import { initPlayer } from '.';
-import { player } from '../player';
+import { player, status } from '../player';
 import { key as scene1Key } from './../scene1';
 import { playBgm, toast } from '..';
 
@@ -169,7 +169,7 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
 
     // 过场动画后，才开始创建场景
     if (start) {
-        createMsg(scene, time);
+        status.life === 'alive' && createMsg(scene, time);
     }
 
     if (powerIndex >= 18 && !end) {
@@ -222,7 +222,7 @@ function iter(scene: Phaser.Scene, time: number) {
     }
 }
 
-function endGame(scene: Phaser.Scene, time:number) {
+function endGame(scene: Phaser.Scene, time: number) {
     end = true;
     player.setVelocity(0, 0);
     player.setGravity(0);
@@ -246,11 +246,11 @@ let downTime = -1;
 let downPhase = 0;
 let dIter = 0;
 
-function down(scene: Phaser.Scene, now:number) {
-    if(downTime < 0)    return;
+function down(scene: Phaser.Scene, now: number) {
+    if (downTime < 0) return;
 
-    if(downPhase === 1) {
-        if(dIter <= 0){
+    if (downPhase === 1) {
+        if (dIter <= 0) {
             // 开始倒
             downPhase = 2;
             downTime = now;
@@ -265,13 +265,13 @@ function down(scene: Phaser.Scene, now:number) {
         }
     }
 
-    if(downPhase === 2) {
-        if(now - downTime > 1000) {
+    if (downPhase === 2) {
+        if (now - downTime > 1000) {
             downPhase = 3;
         }
     }
 
-    if(downPhase === 3){
+    if (downPhase === 3) {
         // 切场景
         player.destroy();
         scene.sys.scenePlugin.switch(scene1Key);
@@ -299,13 +299,12 @@ function destroyPower(p: Phaser.Physics.Arcade.Sprite, d: Phaser.Physics.Arcade.
 }
 
 export function revive() {
-    clearAll();
     msgIndex = 0;
     powerIndex = 0;
     createMsgPlatform = 1;
 }
 
-function clearAll() {
+export const clearAll = () => {
     // 清空平台
     platformsSprite.forEach(s => {
         s.setVisible(false);
@@ -319,7 +318,7 @@ function clearAll() {
         s.destroy();
     });
     power.clear();
-}
+};
 
 // sec from start
 // @ts-ignore

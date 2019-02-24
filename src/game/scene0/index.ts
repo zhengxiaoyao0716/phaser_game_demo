@@ -1,5 +1,5 @@
-import { preload as preloadPlatform, create as createPlatform, update as updatePlatform, platforms, borders, deadlineZone, revive } from './platform';
-import { preload as preloadPlayer, create as createPlayer, update as updatePlayer, player } from '../player';
+import { preload as preloadPlatform, create as createPlatform, update as updatePlatform, platforms, borders, deadlineZone, revive, clearAll } from './platform';
+import { preload as preloadPlayer, create as createPlayer, update as updatePlayer, player, playerDie } from '../player';
 import { gameConfig } from 'src/App';
 
 export const key = 'Scene0';
@@ -11,21 +11,13 @@ export function preload(this: Phaser.Scene) {
 
 export async function create(this: Phaser.Scene) {
     createPlatform(this);
-    await createPlayer(this, 0.2, 0, 0);
+    await createPlayer(this, 0.2, gameConfig.width / 2, 120);
     player.setGravityY(0);
     player.setActive(false);
     player.setVisible(false);
 }
 
-let playerX : number;
-let playerY : number;
-
-export function initPlayer(scene:Phaser.Scene) {
-    // 出生点
-    playerX = gameConfig.width / 2;
-    playerY = 120;
-
-    player.setX(playerX).setY(playerY);
+export function initPlayer(scene: Phaser.Scene) {
     player.setActive(true);
     player.setVisible(true);
     player.setGravityY(1000);
@@ -34,11 +26,11 @@ export function initPlayer(scene:Phaser.Scene) {
     scene.physics.add.collider(player, deadlineZone, onDie);
 }
 
-function onDie(player: Phaser.Physics.Arcade.Sprite){
-    player.setX(playerX).setY(playerY);
-    player.setVelocityY(0);
+const onDie = async (player: Phaser.Physics.Arcade.Sprite) => {
+    clearAll();
+    await playerDie();
     revive();
-}
+};
 
 export function update(this: Phaser.Scene, time: number, delta: number) {
     updatePlayer(this, time, delta);
