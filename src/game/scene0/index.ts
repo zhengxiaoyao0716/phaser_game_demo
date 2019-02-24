@@ -11,7 +11,7 @@ export function preload(this: Phaser.Scene) {
 
 export async function create(this: Phaser.Scene) {
     createPlatform(this);
-    await createPlayer(this, 0, 0);
+    await createPlayer(this, 0.2, 0, 0);
     player.setGravityY(0);
     player.setActive(false);
     player.setVisible(false);

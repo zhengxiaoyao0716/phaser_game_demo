@@ -4,6 +4,7 @@ import asset from './asset';
 import { controller, frameStatus } from '../player/controller';
 import { initPlayer } from '.';
 import { player } from '../player';
+import { key as scene1Key } from './../scene1';
 
 export let platforms: Phaser.Physics.Arcade.Group;
 const platformsSprite = new Array<Phaser.Physics.Arcade.Sprite>();
@@ -13,16 +14,16 @@ let powerDeadlineZone: Phaser.Physics.Arcade.StaticGroup;
 export let power: Phaser.Physics.Arcade.Group;
 const powerSprite = new Array<Phaser.Physics.Arcade.Sprite>();
 
-let mainImg : Phaser.GameObjects.Image;
-let wechat : Phaser.GameObjects.Image;
-let wechatBorder : Phaser.GameObjects.Image;
-let bg : Phaser.GameObjects.Image;
+let mainImg: Phaser.GameObjects.Image;
+let wechat: Phaser.GameObjects.Image;
+let wechatBorder: Phaser.GameObjects.Image;
+let bg: Phaser.GameObjects.Image;
 let canStart = false;
 let starting = false;
 export let start = false;
 let end = false;
 let lastMsg: number;
-let lowPowerImg : Phaser.GameObjects.Image;
+let lowPowerImg: Phaser.GameObjects.Image;
 let lowPowerTime = -1;
 
 const platformSpriteType = 'platformSprite';
@@ -80,22 +81,21 @@ export const create = (scene: Phaser.Scene) => {
     platforms = scene.physics.add.group();
 
     power = scene.physics.add.group();
-    
+
     // create left border and right border
     createBorder(scene);
 
     const vv = document.getElementById('vv') as HTMLVideoElement;
-    vv.addEventListener('canplaythrough', ()=>{
+    vv.addEventListener('canplaythrough', () => {
         vv.addEventListener('keypress', () => {
             // 开始播放
             vv.play();
         });
     });
-    vv.addEventListener('ended', ()=>{
+    vv.addEventListener('ended', () => {
         // 删除开场动画，进入游戏
         vv.remove();
         canStart = true;
-        console.log('e');
     });
 };
 
@@ -125,19 +125,19 @@ const createBorder = (scene: Phaser.Scene) => {
     deadlineZone = scene.physics.add.staticGroup();
     deadlineZone.create(gameConfig.width / 2, deadlineY, deadline, undefined, false, true);
     deadlineZone.create(gameConfig.width / 2, gameConfig.height, deadline, undefined, false, true);
-    
+
     powerDeadlineZone = scene.physics.add.staticGroup();
     powerDeadlineZone.create(gameConfig.width / 2, 0, pDeadline, undefined, false, true);
 };
 
 export const update = (scene: Phaser.Scene, time: number, delta: number) => {
-    if(!canStart && !start && controller && controller.key('any')) {
+    if (!canStart && !start && controller && controller.key('any')) {
         // 任意键，播放开场动画
         (document.getElementById('vv') as HTMLVideoElement).play();
     }
 
     // 开场任意按键，开始游戏
-    if(canStart && !starting && !start && controller && controller.key('any')) {
+    if (canStart && !starting && !start && controller && controller.key('any')) {
         starting = true;
         mainImg.setVisible(false);
         mainImg.destroy();
@@ -148,23 +148,23 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
         wechatIter = 0;
     }
 
-    if(timeStart === undefined && start){
+    if (timeStart === undefined && start) {
         timeStart = time;
         frameStatus.createMsgPlatform = true;
     }
-    
+
     // 过场动画后，才开始创建场景
-    if(start){
+    if (start) {
         createMsg(scene, time);
     }
 
-    if(powerIndex >= 18){
+    if (powerIndex >= 18) {
         endGame(scene);
     }
 
     iter(scene, time);
 
-    if(lowPowerTime > 0 && time > lowPowerTime + 1000) {
+    if (lowPowerTime > 0 && time > lowPowerTime + 1000) {
         lowPowerImg.setVisible(false);
         lowPowerImg.setActive(false);
         startGame(scene);
@@ -172,7 +172,7 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
     }
 };
 
-function startGame(scene: Phaser.Scene){
+function startGame(scene: Phaser.Scene) {
     start = true;
     initPlayer(scene);
     scene.physics.add.collider(platforms, power);
@@ -184,8 +184,8 @@ function startGame(scene: Phaser.Scene){
 
 let wechatIter = -1;
 function iter(scene: Phaser.Scene, time: number) {
-    if(wechatIter >= 0){
-        if(wechatIter >= 1){ 
+    if (wechatIter >= 0) {
+        if (wechatIter >= 1) {
             wechat.setVisible(true);
             lowPowerImg = scene.add.image(gameConfig.width / 2, gameConfig.height / 2, 'low_power');
             wechatIter = -1;
@@ -202,49 +202,52 @@ function iter(scene: Phaser.Scene, time: number) {
     }
 }
 
-function endGame(scene: Phaser.Scene){
+function endGame(scene: Phaser.Scene) {
     end = true;
     player.setVelocity(0, 0);
     player.setGravity(0);
+
+    // 切场景
+    scene.sys.scenePlugin.switch(scene1Key);
 }
 
-function reverseVelocity(platform: Phaser.Physics.Arcade.Sprite, border: Phaser.Physics.Arcade.Sprite){
+function reverseVelocity(platform: Phaser.Physics.Arcade.Sprite, border: Phaser.Physics.Arcade.Sprite) {
     const v = platform.body.velocity.x;
-    if(v !== 0){
+    if (v !== 0) {
         platform.setVelocityX(-v);
     }
 }
 
-function collectPower (player: Phaser.Physics.Arcade.Sprite, p: Phaser.Physics.Arcade.Sprite){
+function collectPower(player: Phaser.Physics.Arcade.Sprite, p: Phaser.Physics.Arcade.Sprite) {
     p.disableBody(true, true);
     p.destroy();
     frameStatus.createMsgPlatform = true;
-    powerIndex+=1;
+    powerIndex += 1;
 }
 
-function destroyPower (p: Phaser.Physics.Arcade.Sprite, d: Phaser.Physics.Arcade.Sprite){
+function destroyPower(p: Phaser.Physics.Arcade.Sprite, d: Phaser.Physics.Arcade.Sprite) {
     p.disableBody(true, true);
     p.destroy();
     frameStatus.createMsgPlatform = true;
 }
 
-export function revive(){
+export function revive() {
     clearAll();
     msgIndex = 0;
     powerIndex = 0;
     frameStatus.createMsgPlatform = true;
 }
 
-function clearAll(){
+function clearAll() {
     // 清空平台
-    platformsSprite.forEach( s => {
+    platformsSprite.forEach(s => {
         s.setVisible(false);
         s.destroy();
     });
     platforms.clear();
 
     // 清空电池
-    powerSprite.forEach( s => {
+    powerSprite.forEach(s => {
         s.setVisible(false);
         s.destroy();
     });
@@ -254,23 +257,23 @@ function clearAll(){
 // sec from start
 // @ts-ignore
 const elapse = (now: number) => {
-    if(timeStart === undefined){
+    if (timeStart === undefined) {
         return 0;
     }
     return now - timeStart;
 };
 
 function createMsg(scene: Phaser.Scene, now: number) {
-    if(end === true)   return;
-    if(frameStatus === undefined)   return;
-    if(frameStatus.createMsgPlatform !== true)  return;
-    if(msgIndex >= msg.length)    return;   // no msg left
-    if((now - lastMsg) < 2200) return;
+    if (end === true) return;
+    if (frameStatus === undefined) return;
+    if (frameStatus.createMsgPlatform !== true) return;
+    if (msgIndex >= msg.length) return;   // no msg left
+    if ((now - lastMsg) < 2200) return;
 
     lastMsg = now;
     let msgInfo = msg[msgIndex];
 
-    if(msgIndex >= 2){
+    if (msgIndex >= 2) {
         createPlatform(scene, msgInfo, 0);
     } else {
         createPlatform(scene, msgInfo, 700);
@@ -283,7 +286,7 @@ function createPlatform(scene: Phaser.Scene, msgInfo: Array<string | boolean>, y
     const type = msgInfo[0];
     const key = msgInfo[3] as string;
     const move = msgInfo[2] as boolean;
-    
+
     const halfScreen = 340;
 
     const platform = platforms.create(0, 0, key, undefined, false, false) as Phaser.Physics.Arcade.Sprite;
@@ -291,7 +294,7 @@ function createPlatform(scene: Phaser.Scene, msgInfo: Array<string | boolean>, y
     const w = platform.getTopRight().x - platform.getTopLeft().x;
     const h = platform.getBottomLeft().y - platform.getTopLeft().y;
     let x: number;
-    if(y <= 0){
+    if (y <= 0) {
         y = gameConfig.height + h / 2 + 100;
     }
     switch (type) {
@@ -312,23 +315,23 @@ function createPlatform(scene: Phaser.Scene, msgInfo: Array<string | boolean>, y
     platform.setImmovable();
     platform.setVisible(true);
     platform.setActive(true);
-    
-    if(move){
+
+    if (move) {
         platform.setFriction(1, 0);
         platform.setVelocityX(-100);
     }
 
-    if(type !== 'm') {
+    if (type !== 'm') {
         const p = power.create(0, 0, 'power', undefined, true, true) as Phaser.Physics.Arcade.Sprite;
         powerSprite.push(p);
         const bound = w / 5;
-    
+
         const px = x + bound - w / 2 + Math.random() * (w - bound * 2);
         p.setX(px).setY(y - h / 2 - 58)
-        .setGravityY(100);
+            .setGravityY(100);
     }
 
-    if(wechatBorder !== undefined){
+    if (wechatBorder !== undefined) {
         wechatBorder.setVisible(false);
         wechatBorder.destroy();
     }

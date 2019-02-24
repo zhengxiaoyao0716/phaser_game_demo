@@ -1,6 +1,6 @@
 import BaseController, { ControllerConfig } from 'src/controller';
 import { player, status } from '../player';
-import { playerHang, playerDown, playerUp } from './anim';
+import { playerIdle, playerDown, playerUp, playerLeft, playerRight } from './anim';
 import { toast } from '..';
 import { onChangeView } from '../scene1/map';
 import { isScene1 } from '../scene1';
@@ -44,15 +44,15 @@ class Controller extends BaseController {
     }
     public update(time: number, delta: number): void {
         const la = controller.axes('LA');
-        const moveSpeed = 60;
-        const jumpSpeed = isScene1 ? 1000 : 600;
+        const moveSpeed = 100;
+        const jumpSpeed = isScene1 ? 1500 : 600;
         const wallingJumpSpeed = 2000;
         const dump = 0.8;
         let speedX = player.body.velocity.x;
 
         if (la[0] > -EPSILON && la[0] < EPSILON) {
             player.setVelocityX(0);
-            status.jumping || playerHang(); // 非跳跃中播放休息动画
+            status.jumping || playerIdle(); // 非跳跃中播放休息动画
         } else {
             if (player.body.velocity.y >= 0 || !status.walling) {
                 speedX = speedX + la[0] * moveSpeed;
@@ -61,17 +61,19 @@ class Controller extends BaseController {
             if (status.jumping) {
                 player.body.velocity.y < 0 ? playerUp() : playerDown();
             } else { // 非跳跃中播放行走动画
-                player.anims.play(la[0] < 0 ? 'playerLeft' : 'playerRight', true);
+                la[0] < 0 ? playerLeft() : playerRight();
             }
         }
         speedX = speedX * dump;
         player.setVelocityX(speedX);
 
-        if (this.updateAction(time, delta)) { // 如果有交互那么拦截跳跃
+        const cooldown = this.updateAction(time, delta);
+        if (cooldown > 0) { // 如果有交互那么拦截跳跃
             this.enable = false;
-            setTimeout(() => this.enable = true, 500); // 关键动作降频操作
+            setTimeout(() => this.enable = true, cooldown); // 关键动作降频操作
             return;
         }
+        if (!this.enable) return;
         const buttonA = controller.key('A');
         const { down, left, right } = player.body.touching;
         if (down) {
@@ -93,7 +95,7 @@ class Controller extends BaseController {
         }
     }
 
-    public updateAction(time: number, delta: number): any {
+    public updateAction(time: number, delta: number): number {
         const pressedA = this.key('A');
         if (frameStatus.climbing) {
             const la = controller.axes('LA');
@@ -108,19 +110,27 @@ class Controller extends BaseController {
             } else {
                 player.setVelocityY(0);
             }
-            return true;
+            return 500;
         }
-        if (!this.enable) return;
+        if (!this.enable) return 0;
         if (frameStatus.savepoint && frameStatus.savepoint !== status.savedpoint && pressedA) {
             status.savedpoint = frameStatus.savepoint;
             toast.center('游戏进度已保存', 1000);
-            return true;
+            return 500;
         }
         if (frameStatus.overlap && pressedA) {
-            const pressedTip = frameStatus.overlap.getData('pressedTip');
+            const object = frameStatus.overlap;
+            if (object.type === 'pianoAction') {
+                const play = object.getData('play');
+                object.setVisible(true);
+                play && play();
+                setTimeout(() => object.setVisible(false), 500);
+                return 1000;
+            }
+            const pressedTip = object.getData('pressedTip');
             pressedTip && toast.center(pressedTip, 1000);
-            frameStatus.overlap.setActive(false);
-            return true;
+            object.setActive(false);
+            return 500;
         }
         if (status.canChangeView) {
             const pressedB = this.key('B');
@@ -130,5 +140,6 @@ class Controller extends BaseController {
                 onChangeView();
             }
         }
+        return 0;
     }
 }

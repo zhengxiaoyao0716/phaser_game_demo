@@ -1,12 +1,10 @@
-import * as mock from '../util/mock';
 import { create as createAmin } from './anim';
 import { create as createController, controller, frameStatus } from './controller';
 import savepoint, { savepointGroup, savedPosition } from './savepoint';
 import { toast } from '..';
+import asset from '../scene1/asset';
 
 export let player: Phaser.Physics.Arcade.Sprite;
-
-let sheetPromsie: Promise<HTMLImageElement>; // 雪碧图加载锁
 
 export const status: {
     life: 'alive' | 'boom',
@@ -23,31 +21,19 @@ export const status: {
 };
 
 export const preload = (scene: Phaser.Scene) => {
-    const texture = mock.texture(scene);
-
-    const images = [
-        ...['   \n■■■\n■ ■', ' ■ \n■■■\n■ ■', ' ■ \n■■■\n   '], // TOP
-        ...['■ ■\n■■■\n   ', '■ ■\n■■■\n ■ ', '   \n■■■\n ■ '], // Bottom
-        ...[' ■■\n ■ \n ■■', ' ■■\n■■ \n ■■', ' ■ \n■■ \n ■ '], // Left
-        ...['■■ \n ■ \n■■ ', '■■ \n ■■\n■■ ', ' ■ \n ■■\n ■ '], // right
-        ' ■ \n■■■\n ■ ', ' ■ \n■ ■\n ■ ', // Hang
-        ' ■ \n■■■\n ■ ', '■ ■\n ■ \n■ ■', // Boom
-    ];
-    images.forEach((value, index) => {
-        texture.text(`player${index}`, value, { color: 0x99FFFF });
-    });
-    sheetPromsie = texture.sheet('player', 256, 256, images.map((_, index) => `player${index}`), 32, 64);
+    scene.load.spritesheet('playerInside', asset.playersheetInside, { frameWidth: 170, frameHeight: 284 });
+    scene.load.spritesheet('playerOutside', asset.playersheetOutside, { frameWidth: 170, frameHeight: 284 });
 
     savepoint.preload(scene);
 };
 
-export const create = async (scene: Phaser.Scene, x: number, y: number, savepoints: Array<[number, number, boolean?]> = []) => {
+export const create = async (scene: Phaser.Scene, scale: number, x: number, y: number, savepoints: Array<[number, number, boolean?]> = []) => {
     savepoint.create(scene, [[x, y, false], ...savepoints]);
 
-    await sheetPromsie;
-    player = scene.physics.add.sprite(x, y, 'player');
+    player = scene.physics.add.sprite(x, y, 'playerOutside');
     player.setCollideWorldBounds(true);
     player.setGravityY(3000);
+    player.setScale(scale);
     (player.body as Phaser.Physics.Arcade.Body).onWorldBounds = true;
     player.body.world.on('worldbounds', onPlayerWorldBounds);
 

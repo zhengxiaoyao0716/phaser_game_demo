@@ -12,9 +12,12 @@ export function preload(this: Phaser.Scene) {
 }
 
 export async function create(this: Phaser.Scene) {
+    const video = document.querySelector('#vv');
+    video && video.remove();
     isScene1 = true;
+
     const [birth, ...savepoints] = createGround(this);
-    await createPlayer(this, birth[0], birth[1], savepoints);
+    await createPlayer(this, 1.0, birth[0], birth[1], savepoints);
     this.cameras.main.startFollow(player);
     this.physics.add.collider(player, groundGroup);
     this.physics.add.overlap(player, climbingGroup, () => null, () => {
