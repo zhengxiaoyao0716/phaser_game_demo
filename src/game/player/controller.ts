@@ -13,6 +13,7 @@ export let controller: Controller;
 export let frameStatus: {
     savepoint?: number, // 附近的保存点，-1代表不在附近
     climbing?: boolean, // 在可攀爬处？
+    createMsgPlatform?: boolean;    // 创建平台
     overlap?: Phaser.Physics.Arcade.Sprite, // （scene1里）重叠的物体
 } = new Proxy({}, {
     get: (target, name, _receiver) => {
@@ -44,7 +45,7 @@ class Controller extends BaseController {
     public update(time: number, delta: number): void {
         const la = controller.axes('LA');
         const moveSpeed = 100;
-        const jumpSpeed = isScene1 ? 1500 : 400;
+        const jumpSpeed = isScene1 ? 1500 : 600;
         const wallingJumpSpeed = 2000;
         const dump = 0.8;
         let speedX = player.body.velocity.x;
