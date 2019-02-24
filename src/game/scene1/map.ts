@@ -48,7 +48,6 @@ export let collideGroup: Phaser.Physics.Arcade.Group;
 export let overlapGroup: Phaser.Physics.Arcade.Group;
 
 export const preload = (scene: Phaser.Scene) => {
-    scene.load.tilemapTiledJSON('tilemap', require('./asset/tilemap.json.tile'));
     Object.entries(asset).forEach(([key, url]) => {
         (url as string).startsWith('data:') ? scene.textures.addBase64(key, url) : scene.load.image(key, url);
     });
@@ -149,9 +148,9 @@ export const create = (scene: Phaser.Scene) => {
                 break;
             }
             case 'climbing': {
-                const climbing = climbingGroup.create(x, y, 'climbing') as Phaser.Physics.Arcade.Sprite;
+                const climbing = climbingGroup.create(x, y, key) as Phaser.Physics.Arcade.Sprite;
                 climbing.setImmovable(true);
-                climbing.setVisible(false);
+                // climbing.setVisible(false);
             }
         }
     });

@@ -1,5 +1,4 @@
 export default {
-    tileset0: require('./tileset0.png'),
     web: require('./web.png'),
     playersheetInside: require('./playersheet-inside.png'),
     playersheetOutside: require('./playersheet-outside.png'),
