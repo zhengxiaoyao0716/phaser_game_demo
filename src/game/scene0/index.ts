@@ -23,7 +23,7 @@ let playerY : number;
 export function initPlayer(scene:Phaser.Scene) {
     // 出生点
     playerX = gameConfig.width / 2;
-    playerY = 150;
+    playerY = 120;
 
     player.setX(playerX).setY(playerY);
     player.setActive(true);

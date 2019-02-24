@@ -22,6 +22,8 @@ let starting = false;
 export let start = false;
 let end = false;
 let lastMsg: number;
+let lowPowerImg : Phaser.GameObjects.Image;
+let lowPowerTime = -1;
 
 const platformSpriteType = 'platformSprite';
 export const isPlatform = (object: Phaser.GameObjects.GameObject): object is Phaser.Physics.Arcade.Sprite => {
@@ -65,6 +67,7 @@ export const preload = (scene: Phaser.Scene) => {
     scene.load.image('power', asset.power);
     scene.load.image('wechat_border', asset.wechat_border);
     scene.load.image('bg', asset.bg);
+    scene.load.image('low_power', asset.low_power);
 };
 
 export const create = (scene: Phaser.Scene) => {
@@ -159,29 +162,33 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
         endGame(scene);
     }
 
-    iter(scene);
+    iter(scene, time);
+
+    if(lowPowerTime > 0 && time > lowPowerTime + 1000) {
+        lowPowerImg.setVisible(false);
+        lowPowerImg.setActive(false);
+        startGame(scene);
+    }
 };
 
 function startGame(scene: Phaser.Scene){
     start = true;
-
-    wechat.setVisible(true);
     initPlayer(scene);
     scene.physics.add.collider(platforms, power);
     scene.physics.add.collider(platforms, borders, reverseVelocity);
 
     scene.physics.add.overlap(player, power, collectPower);
     scene.physics.add.overlap(power, powerDeadlineZone, destroyPower);
-
-    // wechat.setScale(0.8);
 }
 
 let wechatIter = -1;
-function iter(scene: Phaser.Scene) {
+function iter(scene: Phaser.Scene, time: number) {
     if(wechatIter >= 0){
-        if(wechatIter >= 1){
-            startGame(scene);
+        if(wechatIter >= 1){ 
+            wechat.setVisible(true);
+            lowPowerImg = scene.add.image(gameConfig.width / 2, gameConfig.height / 2, 'low_power');
             wechatIter = -1;
+            lowPowerTime = time;
         } else {
             wechatIter += 0.01;
             const s = 1.98 + 5.29 * wechatIter;
@@ -223,6 +230,7 @@ function destroyPower (p: Phaser.Physics.Arcade.Sprite, d: Phaser.Physics.Arcade
 export function revive(){
     clearAll();
     msgIndex = 0;
+    powerIndex = 0;
     frameStatus.createMsgPlatform = true;
 }
 
@@ -256,7 +264,7 @@ function createMsg(scene: Phaser.Scene, now: number) {
     if(frameStatus === undefined)   return;
     if(frameStatus.createMsgPlatform !== true)  return;
     if(msgIndex >= msg.length)    return;   // no msg left
-    if((now - lastMsg) < 1800) return;
+    if((now - lastMsg) < 2200) return;
 
     lastMsg = now;
     let msgInfo = msg[msgIndex];
