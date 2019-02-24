@@ -13,7 +13,6 @@ export let controller: Controller;
 export let frameStatus: {
     savepoint?: number, // 附近的保存点，-1代表不在附近
     climbing?: boolean, // 在可攀爬处？
-    createMsgPlatform?: boolean;    // 创建平台
     overlap?: Phaser.Physics.Arcade.Sprite, // （scene1里）重叠的物体
 } = new Proxy({}, {
     get: (target, name, _receiver) => {
