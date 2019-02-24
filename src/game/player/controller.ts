@@ -3,6 +3,7 @@ import { player, status } from '../player';
 import { playerHang, playerDown, playerUp } from './anim';
 import { toast } from '..';
 import { onChangeView } from '../scene1/map';
+import { isScene1 } from '../scene1';
 
 export let controller: Controller;
 
@@ -32,8 +33,6 @@ export const create = (game: Phaser.Game) => controller = new Controller(game, {
 
 const EPSILON = 0.01;
 const jumpSpeed = 1000;
-const wallingJumpSpeed = 2000;
-const dump = 0.8;
 
 class Controller extends BaseController {
     public game: Phaser.Game;
@@ -44,7 +43,10 @@ class Controller extends BaseController {
     }
     public update(time: number, delta: number): void {
         const la = controller.axes('LA');
-        const moveSpeed = controller.key('L') ? 40 : 60;
+        const moveSpeed = 60;
+        const jumpSpeed = isScene1 ? 1000 : 400;
+        const wallingJumpSpeed = 2000;
+        const dump = 0.8;
         let speedX = player.body.velocity.x;
 
         if (la[0] > -EPSILON && la[0] < EPSILON) {

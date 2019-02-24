@@ -4,6 +4,7 @@ import { frameStatus } from '../player/controller';
 import { toast } from '..';
 
 export const key = 'Scene1';
+export let isScene1 = false;
 
 export function preload(this: Phaser.Scene) {
     preloadPlayer(this);
@@ -11,6 +12,7 @@ export function preload(this: Phaser.Scene) {
 }
 
 export async function create(this: Phaser.Scene) {
+    isScene1 = true;
     const [birth, ...savepoints] = createGround(this);
     await createPlayer(this, birth[0], birth[1], savepoints);
     this.cameras.main.startFollow(player);
