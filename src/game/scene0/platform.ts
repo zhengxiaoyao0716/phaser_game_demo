@@ -168,6 +168,7 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
         lowPowerImg.setVisible(false);
         lowPowerImg.setActive(false);
         startGame(scene);
+        lowPowerTime = -1;
     }
 };
 
