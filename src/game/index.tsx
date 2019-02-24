@@ -30,8 +30,8 @@ export class Game extends React.Component<GameProps, GameState> {
         },
         ...this.props.config,
         scene: [
-            scene1,
             scene0,
+            scene1,
         ],
     });
 

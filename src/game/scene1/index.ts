@@ -5,6 +5,7 @@ import { preload as preloadGround, create as createGround, groundGroup, rope1 } 
 import { frameStatus } from '../player/controller';
 
 export const key = 'Scene1';
+export let isScene1 = false;
 
 export function preload(this: Phaser.Scene) {
     const texture = mock.texture(this);
@@ -16,6 +17,7 @@ export function preload(this: Phaser.Scene) {
 }
 
 export async function create(this: Phaser.Scene) {
+    isScene1 = true;
     this.add.image(gameConfig.width / 2, gameConfig.height / 2, 'background');
 
     createGround(this);

@@ -2,6 +2,7 @@ import BaseController, { ControllerConfig } from 'src/controller';
 import { player, status } from '../player';
 import { playerHang, playerDown, playerUp } from './anim';
 import { toast } from '..';
+import { isScene1 } from '../scene1';
 
 export let controller: Controller;
 
@@ -38,8 +39,8 @@ class Controller extends BaseController {
     }
     public update(time: number, delta: number): void {
         const la = controller.axes('LA');
-        const moveSpeed = controller.key('L') ? 40 : 60;
-        const jumpSpeed = 1000;
+        const moveSpeed = 60;
+        const jumpSpeed = isScene1 ? 1000 : 400;
         const wallingJumpSpeed = 2000;
         const dump = 0.8;
         let speedX = player.body.velocity.x;

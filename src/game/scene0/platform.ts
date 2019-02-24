@@ -47,6 +47,7 @@ const msg = [
     ['r', false, false, asset[17]],
     ['l', false, false, asset[18]],
 ];
+export let msgIndex = 0;
 
 let powerLeft = 0;
 
@@ -172,7 +173,9 @@ function destroyPower (p: Phaser.Physics.Arcade.Sprite, d: Phaser.Physics.Arcade
 }
 
 export function revive(){
-    // powerLeft = 0;
+    platforms.clear();
+    power.clear();
+    msgIndex = 0;
 }
 
 // sec from start
@@ -184,16 +187,22 @@ const elapse = (now: number) => {
 };
 
 function createMsg(scene: Phaser.Scene, time: number) {
-    if(msg.length === 0)    return; // no msg left
+    if(msgIndex >= msg.length)    return; // no msg left
     if(powerLeft > 0)   return;     // power to collect left
 
-    const msgInfo = msg[0];
+    const msgInfo = msg[msgIndex];
 
-    createPlatform(scene, msgInfo);
-    msg.shift();
+    if(msgIndex > 2){
+        createPlatform(scene, msgInfo, 0);
+    } else {
+        createPlatform(scene, msgInfo, 500);
+        msgIndex++;
+        createPlatform(scene, msgInfo, 650);
+    }
+    msgIndex++;
 }
 
-function createPlatform(scene: Phaser.Scene, msgInfo: Array<string | boolean>) {
+function createPlatform(scene: Phaser.Scene, msgInfo: Array<string | boolean>, y: number) {
     const type = msgInfo[0];
     const key = msgInfo[3] as string;
     const move = msgInfo[2] as boolean;
@@ -204,7 +213,9 @@ function createPlatform(scene: Phaser.Scene, msgInfo: Array<string | boolean>) {
     const w = platform.getTopRight().x - platform.getTopLeft().x;
     const h = platform.getBottomLeft().y - platform.getTopLeft().y;
     let x: number;
-    const y = gameConfig.height + h / 2 + 100;
+    if(y <= 0){
+        y = gameConfig.height + h / 2 + 100;
+    }
     switch (type) {
         case 'l':
             x = gameConfig.width / 2 - halfScreen + w / 2;
@@ -234,7 +245,7 @@ function createPlatform(scene: Phaser.Scene, msgInfo: Array<string | boolean>) {
         const bound = w / 5;
     
         const px = x + bound - w / 2 + Math.random() * (w - bound * 2);
-        p.setX(px).setY(gameConfig.height + 42)
+        p.setX(px).setY(y - h / 2 - 58)
         .setGravityY(100);
 
         powerLeft =+ 1;
