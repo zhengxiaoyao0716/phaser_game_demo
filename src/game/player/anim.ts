@@ -60,14 +60,14 @@ export const create = (scene: Phaser.Scene) => {
     scene.anims.create({
         key: 'playerLeft_O',
         frames: scene.anims.generateFrameNumbers('playerOutside', { start: 0, end: 1 }),
-        frameRate: 10,
+        frameRate: 5,
         repeat: -1,
         yoyo: false,
     });
     scene.anims.create({
         key: 'playerRight_O',
         frames: scene.anims.generateFrameNumbers('playerOutside', { start: 2, end: 3 }),
-        frameRate: 10,
+        frameRate: 5,
         repeat: -1,
         yoyo: false,
     });
@@ -80,28 +80,28 @@ export const create = (scene: Phaser.Scene) => {
     scene.anims.create({
         key: 'playerUpRight_O',
         frames: scene.anims.generateFrameNumbers('playerOutside', { start: 6, end: 7 }),
-        frameRate: 10,
+        frameRate: 5,
         repeat: -1,
         yoyo: false,
     });
     scene.anims.create({
         key: 'playerDownRight_O',
         frames: scene.anims.generateFrameNumbers('playerOutside', { start: 10, end: 13 }),
-        frameRate: 10,
+        frameRate: 5,
         repeat: -1,
         yoyo: false,
     });
     scene.anims.create({
         key: 'playerUpLeft_O',
         frames: scene.anims.generateFrameNumbers('playerOutside', { start: 14, end: 15 }),
-        frameRate: 10,
+        frameRate: 5,
         repeat: -1,
         yoyo: false,
     });
     scene.anims.create({
         key: 'playerDownLeft_O',
         frames: scene.anims.generateFrameNumbers('playerOutside', { start: 16, end: 19 }),
-        frameRate: 10,
+        frameRate: 5,
         repeat: -1,
         yoyo: false,
     });

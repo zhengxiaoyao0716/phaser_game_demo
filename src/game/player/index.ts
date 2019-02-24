@@ -54,7 +54,7 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
 };
 
 export const playerDie = async () => {
-    if (status.life === 'boom') return;
+    if (!player || status.life === 'boom') return;
     status.life = 'boom';
     player.body.stop();
     player.setImmovable(true);
