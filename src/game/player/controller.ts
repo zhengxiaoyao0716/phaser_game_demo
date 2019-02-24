@@ -26,7 +26,6 @@ export const setFrameStatus = (key: keyof typeof frameStatus, value: any) => {
 export const create = (game: Phaser.Game) => controller = new Controller(game, {
     domElement: game.domContainer,
     onFocus: (locked: boolean) => locked ? game.scale.startFullscreen() : game.scale.stopFullscreen(),
-    pointLocked: !game.scene.isActive(scene0key),
 });
 
 const EPSILON = 0.01;
