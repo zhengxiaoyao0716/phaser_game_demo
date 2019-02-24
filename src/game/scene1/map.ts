@@ -1,7 +1,6 @@
 import * as mock from '../util/mock';
 import asset from './asset';
 import { player } from '../player';
-// import { gameConfig } from 'src/App';
 
 const tileWidth = 64;
 const tileHeight = 64;
@@ -68,7 +67,7 @@ export const create = (scene: Phaser.Scene) => {
     scene.physics.add.image(5319 / 2, 3618 / 2, 'web');
     scene.physics.world.setBounds(0, 0, 5319, 3618);
     scene.cameras.main.setBounds(0, 0, 5319, 3618);
-    const savepoints: Array<[number, number]> = [[950, 2800]];
+    const savepoints: Array<[number, number]> = [[980, 2800]];
 
     pianoAudios.push(...pianos.map((url, index) => scene.sound.add(`piano${1 + index}`)));
 
@@ -100,6 +99,8 @@ export const create = (scene: Phaser.Scene) => {
         [1893, 3522, , , 'piano', { id: 3 }],
         [2043, 3522, , , 'piano', { id: 4 }],
         [2192, 3522, , , 'piano', { id: 5 }],
+        // 爬绳子
+        [4577, 2120, 50, 1346, 'climbing'],
     ];
     positions.forEach(([x, y, width, height, type, extras], index) => {
         const key = `road${index}`;
@@ -121,7 +122,7 @@ export const create = (scene: Phaser.Scene) => {
             }
             case 'moshuiping': {
                 const box = collideGroup.create(x, y, 'moshuiping') as Phaser.Physics.Arcade.Sprite;
-                box.setDragX(1000);
+                box.setDrag(1000, 10000);
                 box.setGravityY(1000);
                 box.type = 'box';
                 break;
@@ -147,60 +148,13 @@ export const create = (scene: Phaser.Scene) => {
                 });
                 break;
             }
+            case 'climbing': {
+                const climbing = climbingGroup.create(x, y, 'climbing') as Phaser.Physics.Arcade.Sprite;
+                climbing.setImmovable(true);
+                climbing.setVisible(false);
+            }
         }
     });
-    console.log(scene);
-
-    // const tilemap = scene.make.tilemap({ key: 'tilemap' });
-    // const tileset = tilemap.addTilesetImage('tileset0');
-    // const groundLayer = tilemap.createDynamicLayer(0, tileset, 0, 0);
-    // scene.cameras.main.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
-
-    // groundGroup = scene.physics.add.staticGroup();
-    // climbingGroup = scene.physics.add.staticGroup();
-    // collideGroup = scene.physics.add.group();
-    // scene.physics.add.collider(collideGroup, groundGroup);
-    // overlapGroup = scene.physics.add.group();
-    // scene.physics.add.collider(overlapGroup, groundGroup);
-
-    // const box = groundGroup.create(300, 700, 'box');
-    // onInsideView.box = show(box);
-    // onOutsideView.box = hide(box);
-
-    // groundLayer.forEachTile((tile: Phaser.Tilemaps.Tile) => {
-    //     const properties = tile.properties as any;
-    //     const type = properties.type;
-    //     if (!type) return;
-    //     const x = tile.getCenterX();
-    //     const y = tile.getCenterY();
-    //     groundLayer.removeTileAt(tile.x, tile.y);
-    //     switch (type) {
-    //         case 'ground':
-    //             const ground = groundGroup.create(x, y, 'ground');
-    //             ground.setImmovable(true);
-    //             break;
-    //         case 'savepoint':
-    //             savepoints.push([x, y]);
-    //             break;
-    //         case 'climbing':
-    //             climbingGroup.create(x, y, 'rope');
-    //             break;
-    //         case 'box':
-    //             const box = collideGroup.create(x, y, 'box') as Phaser.Physics.Arcade.Sprite;
-    //             box.setDragX(1000);
-    //             box.setGravityY(1000);
-    //             box.type = 'box';
-    //             break;
-    //         case 'action':
-    //             const action = overlapGroup.create(x, y, 'action');
-    //             action.setGravityY(1000);
-    //             action.type = properties.type;
-    //             action.name = properties.name;
-    //             action.setData('tip', 'properties.tip');
-    //             action.setData('pressedTip', 'properties.pressedTip');
-    //             break;
-    //     }
-    // });
     return savepoints;
 };
 
