@@ -54,6 +54,8 @@ export class Game extends React.Component<GameProps, GameState> {
         };
     }
 
+    private onPlay = () => toast.center('');
+
     public componentWillUnmount() {
         this.game.destroy(true);
     }
@@ -71,8 +73,8 @@ export class Game extends React.Component<GameProps, GameState> {
         return (
             <div id="game" className="Game">
                 <div id="container" />
-                <video id="vv" src={asset.start_mov} autoPlay={true} />
-                {this.state.toast.center && <div id="centerTip">{this.state.toast.center}</div>}
+                <video id="vv" src={asset.start_mov} autoPlay={true} onPlay={this.onPlay} />
+                {this.state.toast.center && <h1 id="centerTip">{this.state.toast.center}</h1>}
                 <audio id="bgm" src={require('./../asset/bgm.mp3')} autoPlay={true} loop={true} />
             </div>
         );
