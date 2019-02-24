@@ -96,6 +96,14 @@ class Controller extends BaseController {
     }
 
     public updateAction(time: number, delta: number): number {
+        if (status.canChangeView) {
+            const pressedB = this.key('B');
+            if (pressedB) {
+                status.canChangeView = false;
+                setTimeout(() => status.canChangeView = true, 1500);
+                onChangeView();
+            }
+        }
         const pressedA = this.key('A');
         if (frameStatus.climbing) {
             const la = controller.axes('LA');
@@ -131,14 +139,6 @@ class Controller extends BaseController {
             pressedTip && toast.center(pressedTip, 1000);
             object.setActive(false);
             return 500;
-        }
-        if (status.canChangeView) {
-            const pressedB = this.key('B');
-            if (pressedB) {
-                status.canChangeView = false;
-                setTimeout(() => status.canChangeView = true, 1500);
-                onChangeView();
-            }
         }
         return 0;
     }

@@ -8,10 +8,8 @@ let worldBg: Phaser.Physics.Arcade.Image;
 
 type onViewActive = () => void;
 export let isInsideView = false;
-const onInsideView: { [key: string]: onViewActive } = {
-};
-const onOutsideView: { [key: string]: onViewActive } = {
-};
+const onInsideView: { [key: string]: onViewActive } = {};
+const onOutsideView: { [key: string]: onViewActive } = {};
 export const onChangeView = () => {
     isInsideView = !isInsideView;
     const prefix = player.anims.currentAnim.key.slice(0, -1);
@@ -20,21 +18,20 @@ export const onChangeView = () => {
     worldBg.setTexture(isInsideView ? 'inside' : 'outside');
 };
 const hide = (object: Phaser.Physics.Arcade.Sprite) => () => {
-    if (!object.active) {
-        object.setData('frozen', true);
-        return;
-    }
+    object.setData('frozen', {
+        checkNone: object.body.checkCollision.none,
+        active: object.active,
+        visible: object.visible,
+    });
     object.body.checkCollision.none = true;
     object.setActive(false);
     object.setVisible(false);
 };
 const show = (object: Phaser.Physics.Arcade.Sprite) => () => {
-    if (object.getData('frozen')) {
-        return;
-    }
-    object.body.checkCollision.none = false;
-    object.setActive(true);
-    object.setVisible(true);
+    const { checkNone, active, visible } = object.getData('frozen');
+    object.body.checkCollision.none = checkNone;
+    object.setActive(active);
+    object.setVisible(visible);
 };
 
 const pianos = [
@@ -83,18 +80,18 @@ export const create = (scene: Phaser.Scene) => {
     const texture = mock.texture(scene);
     const positions: Array<[number, number, number?, number?, string?, any?]> = [
         // 出生点附近
-        [800, 3100, 160, 1400, 'ground'],
+        [800, 2550, 160, 1010, 'ground'],
         [1105, 3046, 607, 60, 'ground'],
-        [1518, 3046, 217, 60, 'insideGround'],
+        [1518, 3046, 217, 60, 'outsideGround'],
         [1921, 3046, 590, 60, 'ground'],
         [1921, 2604, 590, 800, 'ground'],
         // 钢琴平台
         [2137, 3537, 2673, 102, 'ground'],
-        [3980, 3476, 1000, 60, 'insideGround'],
+        [3980, 3476, 1000, 60, 'outsideGround'],
         [3776, 3280, 272, 301, 'moshuiping'],
-        [4452, 3196, 99, 500, 'ground'],
-        [4620, 2872, 234, 161, 'ground'],
-        [5023, 2420, 582, 1066, 'ground'],
+        [4452, 3196, 99, 500, 'outsideGround'],
+        [4620, 2872, 234, 161, 'outsideGround'],
+        [5023, 1500, 582, 3000, 'ground'],
         // 钢琴按键
         [1592, 3522, , , 'piano', { id: 1 }],
         [1736, 3522, , , 'piano', { id: 2 }],
@@ -103,9 +100,11 @@ export const create = (scene: Phaser.Scene) => {
         [2192, 3522, , , 'piano', { id: 5 }],
         // 爬绳子
         [4577, 2120, 50, 1346, 'climbing'],
+        // 二层平台
+        [2836, 1981, 3799, 117, 'insideGround'],
     ];
     positions.forEach(([x, y, width, height, type, extras], index) => {
-        const key = `road${index}`;
+        const key = `ground${index}`;
         width != null && height != null && texture.shape(key, { fill: { color: 0x00FF00 } }).rect(width, height);
         switch (type) {
             case 'ground': {
@@ -114,12 +113,21 @@ export const create = (scene: Phaser.Scene) => {
                 ground.setVisible(false);
                 break;
             }
-            case 'insideGround': {
+            case 'outsideGround': {
                 const ground = collideGroup.create(x, y, key) as Phaser.Physics.Arcade.Sprite;
                 ground.setImmovable(true);
                 ground.setVisible(false);
                 onInsideView[key] = hide(ground);
                 onOutsideView[key] = show(ground);
+                break;
+            }
+            case 'insideGround': {
+                const ground = collideGroup.create(x, y, key) as Phaser.Physics.Arcade.Sprite;
+                ground.setImmovable(true);
+                ground.setVisible(false);
+                onInsideView[key] = show(ground);
+                onOutsideView[key] = hide(ground);
+                hide(ground)();
                 break;
             }
             case 'moshuiping': {
@@ -155,7 +163,9 @@ export const create = (scene: Phaser.Scene) => {
             case 'climbing': {
                 const climbing = climbingGroup.create(x, y, key) as Phaser.Physics.Arcade.Sprite;
                 climbing.setImmovable(true);
-                // climbing.setVisible(false);
+                climbing.setVisible(false);
+                onInsideView[key] = hide(climbing);
+                onOutsideView[key] = show(climbing);
             }
         }
     });
@@ -163,5 +173,5 @@ export const create = (scene: Phaser.Scene) => {
 };
 
 export const update = (scene: Phaser.Scene, time: number, delta: number) => {
-    // TODO .
+    // .
 };
