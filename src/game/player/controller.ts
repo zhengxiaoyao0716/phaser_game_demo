@@ -46,7 +46,7 @@ class Controller extends BaseController {
         const la = controller.axes('LA');
         const moveSpeed = 100;
         const jumpSpeed = isScene1 ? 1500 : 600;
-        const wallingJumpSpeed = 2000;
+        // const wallingJumpSpeed = 2000;
         const dump = 0.8;
         let speedX = player.body.velocity.x;
 
@@ -75,7 +75,7 @@ class Controller extends BaseController {
         }
         if (!this.enable) return;
         const buttonA = controller.key('A');
-        const { down, left, right } = player.body.touching;
+        const { down/*, left, right*/ } = player.body.touching;
         if (down) {
             status.jumping = false;
             status.walling = false;
@@ -85,14 +85,14 @@ class Controller extends BaseController {
                 player.setVelocityY(-jumpSpeed);
             }
         }
-        if (left && buttonA && la[0] < -EPSILON) {
-            status.walling = true;
-            player.setVelocity(1 * wallingJumpSpeed, -jumpSpeed * 3 / 4);
-        }
-        if (right && buttonA && la[0] > EPSILON) {
-            status.walling = true;
-            player.setVelocity(-1 * wallingJumpSpeed, -jumpSpeed * 3 / 4);
-        }
+        // if (left && buttonA && la[0] < -EPSILON) {
+        //     status.walling = true;
+        //     player.setVelocity(1 * wallingJumpSpeed, -jumpSpeed * 3 / 4);
+        // }
+        // if (right && buttonA && la[0] > EPSILON) {
+        //     status.walling = true;
+        //     player.setVelocity(-1 * wallingJumpSpeed, -jumpSpeed * 3 / 4);
+        // }
     }
 
     public updateAction(time: number, delta: number): number {
@@ -136,7 +136,7 @@ class Controller extends BaseController {
             const pressedB = this.key('B');
             if (pressedB) {
                 status.canChangeView = false;
-                setTimeout(() => status.canChangeView = true, 3000);
+                setTimeout(() => status.canChangeView = true, 1500);
                 onChangeView();
             }
         }

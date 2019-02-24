@@ -1,5 +1,6 @@
 export default {
-    web: require('./web.png'),
+    inside: require('./inside.png'),
+    outside: require('./outside.png'),
     playersheetInside: require('./playersheet-inside.png'),
     playersheetOutside: require('./playersheet-outside.png'),
     moshuiping: require('./moshuiping.png'),

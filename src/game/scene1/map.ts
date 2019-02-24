@@ -4,6 +4,7 @@ import { player } from '../player';
 
 const tileWidth = 64;
 const tileHeight = 64;
+let worldBg: Phaser.Physics.Arcade.Image;
 
 type onViewActive = () => void;
 export let isInsideView = false;
@@ -16,6 +17,7 @@ export const onChangeView = () => {
     const prefix = player.anims.currentAnim.key.slice(0, -1);
     player.anims.play(`${prefix}_${isInsideView ? 'I' : 'O'}`, true);
     Object.values(isInsideView ? onInsideView : onOutsideView).forEach(fn => fn());
+    worldBg.setTexture(isInsideView ? 'inside' : 'outside');
 };
 const hide = (object: Phaser.Physics.Arcade.Sprite) => () => {
     if (!object.active) {
@@ -63,7 +65,8 @@ export const preload = (scene: Phaser.Scene) => {
 };
 
 export const create = (scene: Phaser.Scene) => {
-    scene.physics.add.image(5319 / 2, 3618 / 2, 'web');
+    worldBg = scene.physics.add.image(5319 / 2, 3618 / 2, 'outside');
+
     scene.physics.world.setBounds(0, 0, 5319, 3618);
     scene.cameras.main.setBounds(0, 0, 5319, 3618);
     const savepoints: Array<[number, number]> = [[980, 2800]];
@@ -87,7 +90,7 @@ export const create = (scene: Phaser.Scene) => {
         [1921, 2604, 590, 800, 'ground'],
         // 钢琴平台
         [2137, 3537, 2673, 102, 'ground'],
-        [3980, 3476, 1000, 60, 'ground'],
+        [3980, 3476, 1000, 60, 'insideGround'],
         [3776, 3280, 272, 301, 'moshuiping'],
         [4452, 3196, 99, 500, 'ground'],
         [4620, 2872, 234, 161, 'ground'],
@@ -115,8 +118,8 @@ export const create = (scene: Phaser.Scene) => {
                 const ground = collideGroup.create(x, y, key) as Phaser.Physics.Arcade.Sprite;
                 ground.setImmovable(true);
                 ground.setVisible(false);
-                onInsideView.box = hide(ground);
-                onOutsideView.box = show(ground);
+                onInsideView[key] = hide(ground);
+                onOutsideView[key] = show(ground);
                 break;
             }
             case 'moshuiping': {
@@ -124,6 +127,8 @@ export const create = (scene: Phaser.Scene) => {
                 box.setDrag(1000, 10000);
                 box.setGravityY(1000);
                 box.type = 'box';
+                onInsideView[key] = hide(box);
+                onOutsideView[key] = show(box);
                 break;
             }
             case 'piano': {
