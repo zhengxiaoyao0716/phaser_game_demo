@@ -1,7 +1,7 @@
 import * as mock from '../util/mock';
 import { gameConfig } from 'src/App';
 import asset from './asset';
-import { controller, frameStatus } from '../player/controller';
+import { controller } from '../player/controller';
 import { initPlayer } from '.';
 import { player } from '../player';
 import { key as scene1Key } from './../scene1';
@@ -25,6 +25,7 @@ let end = false;
 let lastMsg: number;
 let lowPowerImg: Phaser.GameObjects.Image;
 let lowPowerTime = -1;
+let createMsgPlatform = 0;
 
 const platformSpriteType = 'platformSprite';
 export const isPlatform = (object: Phaser.GameObjects.GameObject): object is Phaser.Physics.Arcade.Sprite => {
@@ -150,7 +151,7 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
 
     if (timeStart === undefined && start) {
         timeStart = time;
-        frameStatus.createMsgPlatform = true;
+        createMsgPlatform += 1;
     }
 
     // 过场动画后，才开始创建场景
@@ -221,21 +222,21 @@ function reverseVelocity(platform: Phaser.Physics.Arcade.Sprite, border: Phaser.
 function collectPower(player: Phaser.Physics.Arcade.Sprite, p: Phaser.Physics.Arcade.Sprite) {
     p.disableBody(true, true);
     p.destroy();
-    frameStatus.createMsgPlatform = true;
+    createMsgPlatform += 1;
     powerIndex += 1;
 }
 
 function destroyPower(p: Phaser.Physics.Arcade.Sprite, d: Phaser.Physics.Arcade.Sprite) {
     p.disableBody(true, true);
     p.destroy();
-    frameStatus.createMsgPlatform = true;
+    createMsgPlatform += 1;
 }
 
 export function revive() {
     clearAll();
     msgIndex = 0;
     powerIndex = 0;
-    frameStatus.createMsgPlatform = true;
+    createMsgPlatform = 0;
 }
 
 function clearAll() {
@@ -265,8 +266,7 @@ const elapse = (now: number) => {
 
 function createMsg(scene: Phaser.Scene, now: number) {
     if (end === true) return;
-    if (frameStatus === undefined) return;
-    if (frameStatus.createMsgPlatform !== true) return;
+    if (createMsgPlatform <= 0) return;
     if (msgIndex >= msg.length) return;   // no msg left
     if ((now - lastMsg) < 2200) return;
 
@@ -337,6 +337,6 @@ function createPlatform(scene: Phaser.Scene, msgInfo: Array<string | boolean>, y
     }
     wechatBorder = scene.add.image(gameConfig.width / 2, gameConfig.height / 2, 'wechat_border');
 
-    frameStatus.createMsgPlatform = false;
+    createMsgPlatform -= 1;
     msgIndex += 1;
 }
