@@ -4,7 +4,6 @@ import { frameStatus, setFrameStatus } from '../player/controller';
 import { toast } from '..';
 
 export const key = 'Scene1';
-export let isScene1 = false;
 
 export function preload(this: Phaser.Scene) {
     preloadPlayer(this);
@@ -14,7 +13,6 @@ export function preload(this: Phaser.Scene) {
 export async function create(this: Phaser.Scene) {
     const video = document.querySelector('#vv');
     video && video.parentElement && video.parentElement.removeChild(video);
-    isScene1 = true;
 
     const [birth, ...savepoints] = createGround(this);
     await createPlayer(this, 1.0, birth[0], birth[1], savepoints);

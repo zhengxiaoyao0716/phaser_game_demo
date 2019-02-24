@@ -56,6 +56,7 @@ const keymouseBinder = [
 export interface ControllerConfig {
     domElement?: HTMLElement;
     onFocus?: (locked: boolean) => void;
+    pointLocked?: boolean; // 这个控制器初始化时可能已处于鼠标捕获状态了，没必要捕获第二次
 }
 
 export default abstract class Controller {
@@ -68,6 +69,7 @@ export default abstract class Controller {
         if (config) {
             config.domElement && (this.domElement = config.domElement);
             config.onFocus && (this.onFocus = config.onFocus);
+            config.pointLocked && (this.keymouse.pointerLocked = config.pointLocked);
         }
 
         this.bindGamepad(...gamepadBinder as any);

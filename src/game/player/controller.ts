@@ -3,7 +3,7 @@ import { player, status } from '../player';
 import { playerIdle, playerDown, playerUp, playerLeft, playerRight } from './anim';
 import { toast } from '..';
 import { onChangeView } from '../scene1/map';
-import { isScene1 } from '../scene1';
+import { key as scene0key } from '../scene0';
 
 export let controller: Controller;
 
@@ -26,6 +26,7 @@ export const setFrameStatus = (key: keyof typeof frameStatus, value: any) => {
 export const create = (game: Phaser.Game) => controller = new Controller(game, {
     domElement: game.domContainer,
     onFocus: (locked: boolean) => locked ? game.scale.startFullscreen() : game.scale.stopFullscreen(),
+    pointLocked: !game.scene.isActive(scene0key),
 });
 
 const EPSILON = 0.01;
@@ -41,7 +42,7 @@ class Controller extends BaseController {
     public update(time: number, delta: number): void {
         const la = controller.axes('LA');
         const moveSpeed = 100;
-        const jumpSpeed = isScene1 ? 1500 : 600;
+        const jumpSpeed = this.game.scene.isActive(scene0key) ? 600 : 1500;
         // const wallingJumpSpeed = 2000;
         const dump = 0.8;
         let speedX = player.body.velocity.x;
