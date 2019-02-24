@@ -4,7 +4,6 @@ import { create as createController, controller, frameStatus } from './controlle
 import savepoint, { savepointGroup, savedPosition } from './savepoint';
 import { toast } from '..';
 
-export let playerGroup: Phaser.Physics.Arcade.Group;
 export let player: Phaser.Physics.Arcade.Sprite;
 
 let sheetPromsie: Promise<HTMLImageElement>; // 雪碧图加载锁
@@ -14,11 +13,13 @@ export const status: {
     jumping: boolean,
     walling: boolean,
     savedpoint: number, // 最后一次保存的位置
+    canChangeView: boolean, // 能否切换表里世界视点
 } = {
     life: 'alive',
     jumping: true,
     walling: false,
     savedpoint: 0,
+    canChangeView: false,
 };
 
 export const preload = (scene: Phaser.Scene) => {
@@ -44,8 +45,7 @@ export const create = async (scene: Phaser.Scene, x: number, y: number, savepoin
     savepoint.create(scene, [[x, y, false], ...savepoints]);
 
     await sheetPromsie;
-    playerGroup = scene.physics.add.group();
-    player = playerGroup.create(x, y, 'player');
+    player = scene.physics.add.sprite(x, y, 'player');
     player.setCollideWorldBounds(true);
     player.setGravityY(3000);
     (player.body as Phaser.Physics.Arcade.Body).onWorldBounds = true;
@@ -70,8 +70,9 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
 const onPlayerWorldBounds = (body: Phaser.Physics.Arcade.Body, up: boolean, down: boolean, left: boolean, ight: boolean) => {
     if (down) {
         status.life = 'boom';
-        player.setVelocityX(0);
-        player.setPosition(...savedPosition());
+        player.setVelocity(0, 0);
+        const [x, y] = savedPosition();
+        player.setPosition(x, y - 10);
         setTimeout(() => status.life = 'alive', 500);
     }
 };

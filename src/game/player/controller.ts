@@ -2,6 +2,7 @@ import BaseController, { ControllerConfig } from 'src/controller';
 import { player, status } from '../player';
 import { playerHang, playerDown, playerUp } from './anim';
 import { toast } from '..';
+import { onChangeView } from '../scene1/map';
 import { isScene1 } from '../scene1';
 
 export let controller: Controller;
@@ -12,8 +13,8 @@ export let controller: Controller;
 export let frameStatus: {
     savepoint?: number, // 附近的保存点，-1代表不在附近
     climbing?: boolean, // 在可攀爬处？
-
     createMsgPlatform?: boolean;    // 创建平台
+    overlap?: Phaser.Physics.Arcade.Sprite, // （scene1里）重叠的物体
 } = new Proxy({}, {
     get: (target, name, _receiver) => {
         return target[name] && target[name].value;
@@ -32,9 +33,11 @@ export const create = (game: Phaser.Game) => controller = new Controller(game, {
 });
 
 const EPSILON = 0.01;
+const jumpSpeed = 1000;
 
 class Controller extends BaseController {
     public game: Phaser.Game;
+    private enable = true;
     constructor(game: Phaser.Game, config?: ControllerConfig) {
         super(config);
         this.game = game;
@@ -65,6 +68,8 @@ class Controller extends BaseController {
         player.setVelocityX(speedX);
 
         if (this.updateAction(time, delta)) { // 如果有交互那么拦截跳跃
+            this.enable = false;
+            setTimeout(() => this.enable = true, 500); // 关键动作降频操作
             return;
         }
         const buttonA = controller.key('A');
@@ -89,21 +94,41 @@ class Controller extends BaseController {
     }
 
     public updateAction(time: number, delta: number): any {
+        const pressedA = this.key('A');
         if (frameStatus.climbing) {
             const la = controller.axes('LA');
             if (la[1] < -EPSILON || la[1] > EPSILON) {
                 const x = player.x;
                 const y = player.y;
-                player.setVelocity(0, 0);
+                player.setVelocityX(0);
                 player.setPosition(x, y + 0.2 * la[1] * delta);
+            }
+            if (pressedA) {
+                player.setVelocityY(-jumpSpeed / 3);
+            } else {
+                player.setVelocityY(0);
             }
             return true;
         }
-        const pressedA = this.key('A');
+        if (!this.enable) return;
         if (frameStatus.savepoint && frameStatus.savepoint !== status.savedpoint && pressedA) {
             status.savedpoint = frameStatus.savepoint;
             toast.center('游戏进度已保存', 1000);
             return true;
+        }
+        if (frameStatus.overlap && pressedA) {
+            const pressedTip = frameStatus.overlap.getData('pressedTip');
+            pressedTip && toast.center(pressedTip, 1000);
+            frameStatus.overlap.setActive(false);
+            return true;
+        }
+        if (status.canChangeView) {
+            const pressedB = this.key('B');
+            if (pressedB) {
+                status.canChangeView = false;
+                setTimeout(() => status.canChangeView = true, 3000);
+                onChangeView();
+            }
         }
     }
 }

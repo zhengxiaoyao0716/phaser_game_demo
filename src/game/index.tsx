@@ -4,6 +4,7 @@ import * as scene0 from './scene0';
 import * as scene1 from './scene1';
 import asset from './scene0/asset';
 import './index.css';
+// import test from './scene1/test';
 
 export let canStart = false;
 
@@ -30,8 +31,15 @@ export class Game extends React.Component<GameProps, GameState> {
         scale: {
             fullscreenTarget: 'game',
         },
+        physics: {
+          default: 'arcade',
+          arcade: {
+            'gravity.y': 0,
+          },
+        },
         ...this.props.config,
         scene: [
+            // test,
             scene0,
             scene1,
         ],

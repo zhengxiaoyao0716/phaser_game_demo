@@ -10,7 +10,7 @@ const savepointType = 'savepoint';
 export default {
     preload: (scene: Phaser.Scene) => {
         const texture = mock.texture(scene);
-        texture.shape('savepoint', { fill: { color: 0x0000FF } }).trian(60, 80, 30);
+        texture.shape('savepoint', { fill: { color: 0x0000FF } }).trian(60, 60, 30);
     },
     create: (scene: Phaser.Scene, positions: Array<[number, number, boolean?]>) => {
         savepointGroup = scene.physics.add.group();
