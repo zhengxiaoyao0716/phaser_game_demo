@@ -18,6 +18,9 @@ let mainImg: Phaser.GameObjects.Image;
 let wechat: Phaser.GameObjects.Image;
 let wechatBorder: Phaser.GameObjects.Image;
 let bg: Phaser.GameObjects.Image;
+let bgClear: Phaser.GameObjects.Image;
+let black: Phaser.GameObjects.Image;
+
 let canStart = false;
 let starting = false;
 export let start = false;
@@ -70,6 +73,8 @@ export const preload = (scene: Phaser.Scene) => {
     scene.load.image('wechat_border', asset.wechat_border);
     scene.load.image('bg', asset.bg);
     scene.load.image('low_power', asset.low_power);
+    scene.load.image('bg_clear', asset.bg_clear);
+    scene.load.image('black', asset.black);
 };
 
 export const create = (scene: Phaser.Scene) => {
@@ -78,6 +83,10 @@ export const create = (scene: Phaser.Scene) => {
     mainImg = scene.add.image(gameConfig.width / 2, gameConfig.height / 2, 'main');
     wechat = scene.add.image(gameConfig.width / 2, gameConfig.height / 2, 'wechat');
     wechat.setVisible(false);
+    bgClear = scene.add.image(gameConfig.width / 2, gameConfig.height / 2, 'bg_clear');
+    bgClear.setVisible(false);
+    black = scene.add.image(gameConfig.width / 2, gameConfig.height / 2, 'black');
+    black.setVisible(false);
 
     platforms = scene.physics.add.group();
 
@@ -159,8 +168,8 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
         createMsg(scene, time);
     }
 
-    if (powerIndex >= 18) {
-        endGame(scene);
+    if (powerIndex >= 18 && !end) {
+        endGame(scene, time);
     }
 
     iter(scene, time);
@@ -171,6 +180,8 @@ export const update = (scene: Phaser.Scene, time: number, delta: number) => {
         startGame(scene);
         lowPowerTime = -1;
     }
+
+    down(scene, time);
 };
 
 function startGame(scene: Phaser.Scene) {
@@ -199,17 +210,67 @@ function iter(scene: Phaser.Scene, time: number) {
             bg.setScale(s);
             bg.setX(x);
             bg.setY(y);
+
+            bgClear.setScale(s);
+            bgClear.setX(x);
+            bgClear.setY(y);
         }
     }
 }
 
-function endGame(scene: Phaser.Scene) {
+function endGame(scene: Phaser.Scene, time:number) {
     end = true;
     player.setVelocity(0, 0);
     player.setGravity(0);
+    player.setVisible(false);
 
-    // 切场景
-    scene.sys.scenePlugin.switch(scene1Key);
+    clearAll();
+
+    wechat.setVisible(false);
+    wechatBorder.setVisible(false);
+    bg.setVisible(false);
+
+    bgClear.setVisible(true);
+    black.setVisible(true);
+
+    downTime = time;
+    downPhase = 1;  // 黑屏
+    dIter = 1;
+}
+
+let downTime = -1;
+let downPhase = 0;
+let dIter = 0;
+
+function down(scene: Phaser.Scene, now:number) {
+    if(downTime < 0)    return;
+
+    if(downPhase === 1) {
+        if(dIter <= 0){
+            // 开始倒
+            downPhase = 2;
+            downTime = now;
+        } else {
+            // 拉远
+            dIter -= 0.07;
+
+            const s = 3.5 + 3.77 * dIter;
+            const s2 = 0.48 + 0.52 * dIter;
+            bgClear.setScale(s);
+            black.setScale(s2);
+        }
+    }
+
+    if(downPhase === 2) {
+        if(now - downTime > 1000) {
+            downPhase = 3;
+        }
+    }
+
+    if(downPhase === 3){
+        // 切场景
+        scene.sys.scenePlugin.switch(scene1Key);
+    }
 }
 
 function reverseVelocity(platform: Phaser.Physics.Arcade.Sprite, border: Phaser.Physics.Arcade.Sprite) {
