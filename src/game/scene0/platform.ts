@@ -273,6 +273,7 @@ function down(scene: Phaser.Scene, now:number) {
 
     if(downPhase === 3){
         // 切场景
+        player.destroy();
         scene.sys.scenePlugin.switch(scene1Key);
     }
 }
