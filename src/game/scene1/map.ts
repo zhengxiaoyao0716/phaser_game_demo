@@ -154,6 +154,7 @@ export const create = (scene: Phaser.Scene) => {
                         speed: 100,
                         scale: { start: 0, end: 0.3 },
                         blendMode: 'ADD',
+                        frequency: 100,
                     });
                     onInsideView[`${key}/particle`] = () => particle.setVisible(true);
                     onOutsideView[`${key}/particle`] = () => particle.setVisible(false);
