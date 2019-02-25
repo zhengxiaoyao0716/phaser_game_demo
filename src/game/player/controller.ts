@@ -93,14 +93,14 @@ class Controller extends BaseController {
 
     public updateAction(time: number, delta: number): number {
         if (status.canChangeView) {
-            const pressedX = this.key('X');
-            if (pressedX) {
+            const pressedB = this.key('B');
+            if (pressedB) {
                 status.canChangeView = false;
                 setTimeout(() => status.canChangeView = true, 500);
                 onChangeView();
             }
         }
-        const pressedB = this.key('B');
+        const pressedX = this.key('X');
         if (frameStatus.climbing) {
             const la = controller.axes('LA');
             if (la[1] < -EPSILON || la[1] > EPSILON) {
@@ -109,7 +109,7 @@ class Controller extends BaseController {
                 player.setVelocityX(0);
                 player.setPosition(x, y + 0.2 * la[1] * delta);
             }
-            if (pressedB) {
+            if (pressedX) {
                 player.setVelocityY(-jumpSpeed / 3);
             } else {
                 player.setVelocityY(0);
@@ -117,12 +117,12 @@ class Controller extends BaseController {
             return 500;
         }
         if (!this.enable) return 0;
-        if (frameStatus.savepoint && frameStatus.savepoint !== status.savedpoint && pressedB) {
+        if (frameStatus.savepoint && frameStatus.savepoint !== status.savedpoint && pressedX) {
             status.savedpoint = frameStatus.savepoint;
             toast.center('游戏进度已保存', 1000);
             return 500;
         }
-        if (frameStatus.overlap && pressedB) {
+        if (frameStatus.overlap && pressedX) {
             const object = frameStatus.overlap;
             if (object.type === 'pianoAction') {
                 const play = object.getData('play');
