@@ -2,8 +2,6 @@ import * as mock from '../util/mock';
 import asset from './asset';
 import { player } from '../player';
 
-const tileWidth = 64;
-const tileHeight = 64;
 let worldBg: Phaser.Physics.Arcade.Image;
 
 type onViewActive = () => void;
@@ -53,15 +51,7 @@ export const preload = (scene: Phaser.Scene) => {
     Object.entries(asset).forEach(([key, url]) => {
         (url as string).startsWith('data:') ? scene.textures.addBase64(key, url) : scene.load.image(key, url);
     });
-
     pianos.forEach((url, index) => scene.load.audio(`piano${1 + index}`, url));
-
-    const texture = mock.texture(scene);
-    texture.shape('ground', { fill: { color: 0x00FF00 } }).rect(tileWidth, tileHeight);
-    texture.shape('wall', { fill: { color: 0x00FF00 } }).rect(tileWidth, tileHeight);
-    texture.shape('rope', { fill: { color: 0xFFFF00 } }).rect(tileWidth, tileHeight);
-    texture.shape('box', { fill: { color: 0xFF00FF } }).rect(tileWidth, tileHeight);
-    texture.shape('action', { fill: { color: 0xFF00FF } }).trian(tileWidth, tileHeight, tileWidth / 2);
 };
 
 export const create = (scene: Phaser.Scene) => {
@@ -81,7 +71,6 @@ export const create = (scene: Phaser.Scene) => {
     overlapGroup = scene.physics.add.group();
     scene.physics.add.collider(overlapGroup, groundGroup);
 
-    const texture = mock.texture(scene);
     const positions: Array<[number, number, number?, number?, string?, any?]> = [
         // 出生点附近
         [800, 2550, 160, 1010, 'ground'],
@@ -90,24 +79,28 @@ export const create = (scene: Phaser.Scene) => {
         [1921, 3046, 590, 60, 'ground'],
         [1921, 2604, 590, 800, 'ground'],
         // 钢琴平台
-        [2137, 3537, 2673, 102, 'ground'],
+        [2000, 3537, 2750, 102, 'ground'],
         [3980, 3476, 1000, 60, 'outsideGround'],
         [3776, 3280, 272, 301, 'moshuiping'],
         [4452, 3196, 99, 500, 'outsideGround'],
         [4620, 2872, 234, 161, 'outsideGround'],
         [5023, 1500, 582, 3000, 'ground'],
         // 钢琴按键
-        [1592, 3522, , , 'piano', { id: 1 }],
+        [1592, 3522, , , 'piano', { id: 1, highlight: true }],
         [1736, 3522, , , 'piano', { id: 2 }],
-        [1893, 3522, , , 'piano', { id: 3 }],
+        [1893, 3522, , , 'piano', { id: 3, highlight: true }],
         [2043, 3522, , , 'piano', { id: 4 }],
-        [2192, 3522, , , 'piano', { id: 5 }],
+        [2192, 3522, , , 'piano', { id: 5, highlight: true }],
         // 爬绳子
-        [4577, 2170, 50, 890, 'climbing'],
+        [4577, 2230, 50, 830, 'climbing'],
         // 二层平台
         [1700, 1981, 3300, 117, 'ground'],
         [4300, 1981, 1300, 117, 'insideGround'],
     ];
+
+    const texture = mock.texture(scene);
+    texture.shape('pianoParticle', { fill: { color: 0x99388C } }).circle(30);
+
     positions.forEach(([x, y, width, height, type, extras], index) => {
         const key = `ground${index}`;
         width != null && height != null && texture.shape(key, { fill: { color: 0x00FF00 } }).rect(width, height);
@@ -146,11 +139,27 @@ export const create = (scene: Phaser.Scene) => {
                 break;
             }
             case 'piano': {
-                const id = (extras as any).id;
+                const { id, highlight } = (extras as any);
                 const button = overlapGroup.create(x, y, `button${id}`) as Phaser.Physics.Arcade.Sprite;
                 button.setVisible(false);
                 button.type = 'pianoAction';
                 button.name = `piano${id}`;
+                onInsideView[key] = hide(button);
+                onOutsideView[key] = show(button);
+
+                const particle = scene.add.particles('pianoParticle');
+                if (highlight) {
+                    particle.createEmitter({
+                        x: x - 20, y: y + 30,
+                        speed: 100,
+                        scale: { start: 0, end: 0.3 },
+                        blendMode: 'ADD',
+                    });
+                    onInsideView[`${key}/particle`] = () => particle.setVisible(true);
+                    onOutsideView[`${key}/particle`] = () => particle.setVisible(false);
+                    onInsideView[`${key}/particle`]();
+                }
+
                 button.setData('play', () => {
                     pianoAudios[id - 1].play();
                     if (pianoPlay == null) return; // 已解锁
@@ -164,6 +173,7 @@ export const create = (scene: Phaser.Scene) => {
                         pianoPass.setActive(false);
                         pianoPass.body.checkCollision.none = true;
                         pianoPlay = null;
+                        particle.destroy();
                     });
                 });
                 break;
