@@ -249,32 +249,49 @@ let dIter = 0;
 function down(scene: Phaser.Scene, now: number) {
     if (downTime < 0) return;
 
-    if (downPhase === 1) {
-        if (dIter <= 0) {
-            // 开始倒
-            downPhase = 2;
-            downTime = now;
-        } else {
-            // 拉远
-            dIter -= 0.03;
+    switch (downPhase) {
+        case 1: {
+            if (dIter <= 0) {
+                // 开始倒
+                downPhase = 2;
+                downTime = now;
+            } else {
+                // 拉远
+                dIter -= 0.03;
 
-            const s = 3.5 + 3.77 * dIter;
-            const s2 = 0.48 + 0.52 * dIter;
-            bgClear.setScale(s);
-            black.setScale(s2);
+                const s = 3.5 + 3.77 * dIter;
+                const s2 = 0.48 + 0.52 * dIter;
+                bgClear.setScale(s);
+                black.setScale(s2);
+            }
+            break;
         }
-    }
-
-    if (downPhase === 2) {
-        if (now - downTime > 1000) {
-            downPhase = 3;
+        case 2: {
+            if (now - downTime > 1000) {
+                const { x, y } = black;
+                black.setOrigin(0, 1);
+                black.setPosition(x - black.width * black.scaleX / 2, y + black.height * black.scaleY / 2);
+                downPhase = 3;
+                downTime = now;
+            }
+            break;
         }
-    }
-
-    if (downPhase === 3) {
-        // 切场景
-        player.destroy();
-        scene.sys.scenePlugin.switch(scene1Key);
+        case 3: {
+            if (now - downTime > 500) {
+                downPhase = 4;
+                return;
+            }
+            black.setRotation(-1.57 * Math.pow((now - downTime) / 500, 3));
+            break;
+        }
+        case 4: {
+            // 切场景
+            player.destroy();
+            scene.sys.scenePlugin.switch(scene1Key);
+            break;
+        }
+        default:
+            break;
     }
 }
 
