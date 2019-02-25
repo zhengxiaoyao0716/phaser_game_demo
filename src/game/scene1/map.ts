@@ -70,6 +70,7 @@ export const create = (scene: Phaser.Scene) => {
     scene.physics.world.setBounds(0, 0, 5319, 3618);
     scene.cameras.main.setBounds(0, 0, 5319, 3618);
     const savepoints: Array<[number, number]> = [[980, 2800]];
+    // const savepoints: Array<[number, number]> = [[1736, 1600 ]]; // 第二层平台上
 
     pianoAudios.push(...pianos.map((url, index) => scene.sound.add(`piano${1 + index}`)));
 
@@ -104,7 +105,8 @@ export const create = (scene: Phaser.Scene) => {
         // 爬绳子
         [4577, 2170, 50, 890, 'climbing'],
         // 二层平台
-        [2836, 1981, 3799, 117, 'insideGround'],
+        [1700, 1981, 3300, 117, 'ground'],
+        [4300, 1981, 1300, 117, 'insideGround'],
     ];
     positions.forEach(([x, y, width, height, type, extras], index) => {
         const key = `ground${index}`;
@@ -169,7 +171,7 @@ export const create = (scene: Phaser.Scene) => {
             case 'climbing': {
                 const climbing = climbingGroup.create(x, y, key) as Phaser.Physics.Arcade.Sprite;
                 climbing.setImmovable(true);
-                // climbing.setVisible(false);
+                climbing.setVisible(false);
                 onInsideView[key] = hide(climbing);
                 onOutsideView[key] = show(climbing);
             }
